@@ -2,19 +2,20 @@ Save migrations and columns by storing multiple booleans in a single integer.
 
     class User < ActiveRecord::Base
       extend Bitfield
-      bitfield :my_bits, 1 => :is_seller, 2 => :is_dangerous, 4 => :is_stupid, 8 => is_insane
+      bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
     end
 
-    user = User.new(:is_seller => true, :is_insane => true)
-    user.is_seller == true
-    user.is_stupid == false
+    user = User.new(:seller => true, :insane => true)
+    user.seller == true
+    user.stupid? == false
     user.my_bits == 9
 
  - reader and writers
- - records changes `user.chamges == {:is_seller => [false, true], :is_insane => [false, true]}`
- - provides scopes with `:named_scopes => true` so we can do `User.is_seller.is_stupid.first`
- - query sql via `User.bitfield_sql(:is_insane => true) == '(my_bits NOT IN (TODO))'`
- - setter sql via `User.set_bitfield_sql(:is_insane => true) == 'TODO'`
+ - records changes `user.chamges == {:seller => [false, true], :insane => [false, true]}`
+ - provides scopes with `:named_scopes => true` so we can do `User.seller.stupid.first`
+ - **FAST** sql via `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)' # 2, 1+2`
+ - setter sql via `User.set_bitfield_sql(:insane => true) == 'TODO'`
+ - simple access to bits e.g. `User.bitfields[:my_bits][:stupid] == 4`
 
 Install
 =======
