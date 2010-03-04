@@ -55,6 +55,30 @@ describe Bitfield do
     it "is false when set to falsy" do
       User.new(:seller => 'false').seller.should == false
     end
+
+    it "changes the bits when setting to false" do
+      user = User.new(:bits => 7)
+      user.seller = false
+      user.bits.should == 6
+    end
+
+    it "does not get negative when unsetting high bits" do
+      user = User.new(:seller => true)
+      user.stupid = false
+      user.bits.should == 1
+    end
+
+    it "changes the bits when setting to true" do
+      user = User.new(:bits => 2)
+      user.seller = true
+      user.bits.should == 3
+    end
+
+    it "does not get too high when setting high bits" do
+      user = User.new(:bits => 7)
+      user.seller = true
+      user.bits.should == 7
+    end
   end
 
   describe :bitfield_sql do
@@ -74,7 +98,7 @@ describe Bitfield do
       User.bitfield_sql(:seller => true, :insane => false).should == 'users.bits IN (1,5)' # 1, 1+4
     end
 
-    it "combines bultiple columns into one sql" do
+    it "combines multiple columns into one sql" do
       sql = MultiBitUser.bitfield_sql(:seller => true, :insane => false, :one => true, :four => true)
       sql.should == 'users.bits IN (1,5) AND users.more_bits IN (5,7)' # 1, 1+4 AND 1+4, 1+2+4
     end
