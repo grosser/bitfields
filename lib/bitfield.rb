@@ -13,37 +13,37 @@ module Bitfield
     # extract options
     self.bitfields ||= {}
     self.bitfield_options ||= {}
-    bitfields[column] = Bitfield.extract_bitfields!(options)
+    bitfields[column] = Bitfield.extract_bits(options)
     bitfield_options[column] = options
 
     # add instance methods
-    bitfields[column].keys.each do |name|
-      define_method(name){ bitfield_value(name) }
-      define_method("#{name}?"){ bitfield_value(name) }
-      define_method("#{name}="){|value| set_bitfield_value(name, value) }
+    bitfields[column].keys.each do |bit_name|
+      define_method(bit_name){ bitfield_value(bit_name) }
+      define_method("#{bit_name}?"){ bitfield_value(bit_name) }
+      define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
     end
 
     include Bitfield::InstanceMethods
   end
 
-  def self.extract_bitfields!(options)
+  def self.extract_bits(options)
     bitfields = {}
-    options.keys.select{|key| key.is_a?(Numeric) }.each do |key|
-      name = options.delete(key)
-      bitfields[name.to_sym] = key
+    options.keys.select{|key| key.is_a?(Numeric) }.each do |bit|
+      bit_name = options.delete(bit).to_sym
+      bitfields[bit_name] = bit
     end
     bitfields
   end
 
-  def bitfield_column(bitfield)
-    bitfields.detect{|c, bitfields| bitfields.keys.include?(bitfield) }.first
+  def bitfield_column(bit_name)
+    bitfields.detect{|c, bits| bits.keys.include?(bit_name) }.first
   end
 
   def bitfield_sql(bitfield_values)
     columns = {}
-    bitfield_values.each do |bitfield, value|
-      column = bitfield_column(bitfield)
-      bit = bitfields[column][bitfield]
+    bitfield_values.each do |bit_name, value|
+      column = bitfield_column(bit_name)
+      bit = bitfields[column][bit_name]
 
       max = (bitfields[column].values.max * 2) - 1
       columns[column] ||= (0..max).to_a # seed with all possible values
@@ -62,13 +62,13 @@ module Bitfield
   end
 
   module InstanceMethods
-    def bitfield_value(bitfield)
-      column, bit, current_value = bitfield_info(bitfield)
+    def bitfield_value(bit_name)
+      column, bit, current_value = bitfield_info(bit_name)
       current_value & bit != 0
     end
 
-    def set_bitfield_value(bitfield, value)
-      column, bit, current_value = bitfield_info(bitfield)
+    def set_bitfield_value(bit_name, value)
+      column, bit, current_value = bitfield_info(bit_name)
       if TRUE_VALUES.include?(value)
         send("#{column}=", current_value | bit) # bit8 + bit1 == 9 and bit8 + bit8 == 8
       else
@@ -76,11 +76,11 @@ module Bitfield
       end
     end
 
-    def bitfield_info(bitfield)
-      column = self.class.bitfield_column(bitfield)
+    def bitfield_info(bit_name)
+      column = self.class.bitfield_column(bit_name)
       [
         column,
-        self.class.bitfields[column][bitfield], # bit
+        self.class.bitfields[column][bit_name], # bit
         (send(column)||0) # current value
       ]
     end
