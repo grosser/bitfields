@@ -45,28 +45,31 @@ module Bitfields
   end
 
   def bitfield_sql(bit_values)
+    # :seller => true ---> :my_bits => [1,3]
     columns = {}
     bit_values.each do |bit_name, value|
       column = bitfield_column(bit_name)
       bit = bitfields[column][bit_name]
 
       max = (bitfields[column].values.max * 2) - 1
-      columns[column] ||= (0..max).to_a # seed with all possible values
+      columns[column] ||= (0..max).to_a # all possible values
 
       # remove values that do not fit in
       if value
-        columns[column].reject!{|i| i & bit == 0 } # reject all with this bit off
+        columns[column].reject!{|i| i & bit == 0 } # reject values with bit off
       else
-        columns[column].reject!{|i| i & bit == bit } # reject all with this bit on
+        columns[column].reject!{|i| i & bit == bit } # reject values with bit on
       end
     end
 
+    # :my_bits => {:seller => [1,3,4]} ---> sql
     columns.map do |column, values|
       "#{table_name}.#{column} IN (#{values * ','})"
     end * ' AND '
   end
 
   def set_bitfield_sql(bit_values)
+    # :seller => true, :insane => false ---> :my_bits => {:set => [1], :unset => [4]}
     columns = {}
     bit_values.each do |bit_name, value|
       column = bitfield_column(bit_name)
@@ -78,6 +81,7 @@ module Bitfields
       columns[column][collector] += bit
     end
 
+    # :my_bits => {:set => [1], :unset => [4]} ----> sql
     columns.map do |column, changes|
       changed = changes[:set] + changes[:unset]
       "#{column} = (#{column} | #{changed}) - #{changes[:unset]}"
