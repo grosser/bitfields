@@ -4,7 +4,7 @@ Spec::Rake::SpecTask.new {|t| t.spec_opts = ['--color']}
 
 begin
   require 'jeweler'
-  project_name = 'bitfield'
+  project_name = 'bitfields'
   Jeweler::Tasks.new do |gem|
     gem.name = project_name
     gem.summary = "Save migrations and columns by storing multiple booleans in a single integer."
