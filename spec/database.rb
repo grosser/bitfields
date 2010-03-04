@@ -10,5 +10,6 @@ ActiveRecord::Base.establish_connection(
 ActiveRecord::Schema.define(:version => 1) do
   create_table :users do |t|
     t.integer :bits
+    t.integer :more_bits
   end
 end

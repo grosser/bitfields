@@ -11,6 +11,7 @@ class UserWithBitfieldOptions < ActiveRecord::Base
 end
 
 class MultiBitUser < ActiveRecord::Base
+  set_table_name 'users'
   extend Bitfield
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
@@ -18,6 +19,10 @@ end
 
 
 describe Bitfield do
+  before do
+    User.delete_all
+  end
+
   describe :bitfields do
     it "parses them correctly" do
       User.bitfields.should == {:bits => {:seller => 1, :insane => 2, :stupid => 4}}
@@ -101,6 +106,53 @@ describe Bitfield do
     it "combines multiple columns into one sql" do
       sql = MultiBitUser.bitfield_sql(:seller => true, :insane => false, :one => true, :four => true)
       sql.should == 'users.bits IN (1,5) AND users.more_bits IN (5,7)' # 1, 1+4 AND 1+4, 1+2+4
+    end
+
+    it "produces working sql" do
+      u1 = MultiBitUser.create!(:seller => true, :one => true)
+      u2 = MultiBitUser.create!(:seller => true, :one => false)
+      u3 = MultiBitUser.create!(:seller => false, :one => false)
+      MultiBitUser.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :one => false)).should == [u2]
+    end
+  end
+
+  describe :set_bitfield_sql do
+    it "sets a single bit" do
+      User.set_bitfield_sql(:seller => true).should == 'bits = (bits | 1) - 0'
+    end
+
+    it "unsets a single bit" do
+      User.set_bitfield_sql(:seller => false).should == 'bits = (bits | 1) - 1'
+    end
+
+    it "sets multiple bits" do
+      User.set_bitfield_sql(:seller => true, :insane => true).should == 'bits = (bits | 3) - 0'
+    end
+
+    it "unsets multiple bits" do
+      User.set_bitfield_sql(:seller => false, :insane => false).should == 'bits = (bits | 3) - 3'
+    end
+
+    it "sets and unsets in one command" do
+      User.set_bitfield_sql(:seller => false, :insane => true).should == 'bits = (bits | 3) - 1'
+    end
+
+    it "sets and unsets for multiple columns in one sql" do
+      sql = MultiBitUser.set_bitfield_sql(:seller => false, :insane => true, :one => true, :two => false)
+      sql.should == "bits = (bits | 3) - 1, more_bits = (more_bits | 3) - 2"
+    end
+
+    it "produces working sql" do
+      u = MultiBitUser.create!(:seller => true, :insane => true, :stupid => false, :one => true, :two => false, :four => false)
+      sql = MultiBitUser.set_bitfield_sql(:seller => false, :insane => true, :one => true, :two => false)
+      MultiBitUser.update_all(sql)
+      u.reload
+      u.seller.should == false
+      u.insane.should == true
+      u.stupid.should == false
+      u.one.should == true
+      u.two.should == false
+      u.four.should == false
     end
   end
 end

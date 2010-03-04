@@ -39,9 +39,9 @@ module Bitfield
     bitfields.detect{|c, bits| bits.keys.include?(bit_name) }.first
   end
 
-  def bitfield_sql(bitfield_values)
+  def bitfield_sql(bit_values)
     columns = {}
-    bitfield_values.each do |bit_name, value|
+    bit_values.each do |bit_name, value|
       column = bitfield_column(bit_name)
       bit = bitfields[column][bit_name]
 
@@ -57,8 +57,26 @@ module Bitfield
     end
 
     columns.map do |column, values|
-      "users.#{column} IN (#{values * ','})"
+      "#{table_name}.#{column} IN (#{values * ','})"
     end * ' AND '
+  end
+
+  def set_bitfield_sql(bit_values)
+    columns = {}
+    bit_values.each do |bit_name, value|
+      column = bitfield_column(bit_name)
+      bit = bitfields[column][bit_name]
+
+      columns[column] ||= {:set => 0, :unset => 0}
+
+      collector = (value ? :set : :unset)
+      columns[column][collector] += bit
+    end
+
+    columns.map do |column, changes|
+      changed = changes[:set] + changes[:unset]
+      "#{column} = (#{column} | #{changed}) - #{changes[:unset]}"
+    end * ', '
   end
 
   module InstanceMethods
