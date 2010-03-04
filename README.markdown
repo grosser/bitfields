@@ -1,7 +1,7 @@
 Save migrations and columns by storing multiple booleans in a single integer.
 
     class User < ActiveRecord::Base
-      extend Bitfield
+      extend Bitfields
       bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
     end
 
@@ -14,13 +14,18 @@ Save migrations and columns by storing multiple booleans in a single integer.
  - records changes `user.chamges == {:seller => [false, true], :insane => [false, true]}`
  - provides scopes with `:named_scopes => true` so we can do `User.seller.stupid.first`
  - **FAST** sql via `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)' # 2, 1+2`
- - setter sql via `User.set_bitfield_sql(:insane => true) == 'TODO'`
+ - **FAST** setter sql via `User.set_bitfield_sql(:insane => true, :stupid => false) == 'my_bits = (my_bits | 6) - 4'`
  - simple access to bits e.g. `User.bitfields[:my_bits][:stupid] == 4`
 
 Install
 =======
-As Gem: ` sudo gem install bitfield `
-Or as Rails plugin: ` script/plugins install git://github.com/grosser/bitfield.git `
+As Gem: ` sudo gem install bitfields `  
+Or as Rails plugin: ` script/plugins install git://github.com/grosser/bitfields.git `
+
+Usage
+=====
+
+  User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
 
 Authors
 =======

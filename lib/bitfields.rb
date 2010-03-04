@@ -1,6 +1,6 @@
 require 'active_support'
 
-module Bitfield
+module Bitfields
   TRUE_VALUES = [true, 1, '1', 't', 'T', 'true', 'TRUE'] # taken from ActiveRecord::ConnectionAdapters::Column
 
   attr_accessor :bitfields, :bitfield_options
@@ -13,7 +13,7 @@ module Bitfield
     # extract options
     self.bitfields ||= {}
     self.bitfield_options ||= {}
-    bitfields[column] = Bitfield.extract_bits(options)
+    bitfields[column] = Bitfields.extract_bits(options)
     bitfield_options[column] = options
 
     # add instance methods
@@ -23,7 +23,7 @@ module Bitfield
       define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
     end
 
-    include Bitfield::InstanceMethods
+    include Bitfields::InstanceMethods
   end
 
   def self.extract_bits(options)

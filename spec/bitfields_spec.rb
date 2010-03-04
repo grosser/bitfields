@@ -1,24 +1,24 @@
 require 'spec/spec_helper'
 
 class User < ActiveRecord::Base
-  extend Bitfield
+  extend Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
 end
 
 class UserWithBitfieldOptions < ActiveRecord::Base
-  extend Bitfield
+  extend Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => true
 end
 
 class MultiBitUser < ActiveRecord::Base
   set_table_name 'users'
-  extend Bitfield
+  extend Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
 end
 
 
-describe Bitfield do
+describe Bitfields do
   before do
     User.delete_all
   end
