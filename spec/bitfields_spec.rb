@@ -7,7 +7,7 @@ end
 
 class UserWithBitfieldOptions < ActiveRecord::Base
   extend Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => true
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
 end
 
 class MultiBitUser < ActiveRecord::Base
@@ -16,6 +16,13 @@ class MultiBitUser < ActiveRecord::Base
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
 end
+
+class UserWithoutScopes < ActiveRecord::Base
+  set_table_name 'users'
+  extend Bitfields
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
+end
+
 
 
 describe Bitfields do
@@ -35,7 +42,7 @@ describe Bitfields do
     end
 
     it "parses them correctly when set" do
-      UserWithBitfieldOptions.bitfield_options.should == {:bits => {:named_scopes => true}}
+      UserWithBitfieldOptions.bitfield_options.should == {:bits => {:named_scopes => false}}
     end
   end
 
@@ -153,6 +160,31 @@ describe Bitfields do
       u.one.should == true
       u.two.should == false
       u.four.should == false
+    end
+  end
+
+  describe 'named scopes' do
+    before do
+      @u1 = User.create!(:seller => true, :insane => false)
+      @u2 = User.create!(:seller => true, :insane => true)
+    end
+
+    it "creates them when nothing was passed" do
+      User.respond_to?(:seller).should == true
+      User.respond_to?(:not_seller).should == true
+    end
+
+    it "does not create them when false was passed" do
+      UserWithoutScopes.respond_to?(:seller).should == false
+      UserWithoutScopes.respond_to?(:not_seller).should == false
+    end
+
+    it "produces working positive scopes" do
+      User.insane.seller.to_a.should == [@u2]
+    end
+
+    it "produces working negative scopes" do
+      User.not_insane.seller.to_a.should == [@u1]
     end
   end
 end

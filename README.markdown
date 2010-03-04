@@ -11,8 +11,8 @@ Save migrations and columns by storing multiple booleans in a single integer.
     user.my_bits == 9
 
  - reader and writers
- - records changes `user.chamges == {:seller => [false, true], :insane => [false, true]}`
- - provides scopes with `:named_scopes => true` so we can do `User.seller.stupid.first`
+ - changes `user.chamges == {:seller => [false, true], :insane => [false, true]}`
+ - scopes `User.seller.stupid.first` (deactivate with `:scopes => false`)
  - **FAST** sql via `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)' # 2, 1+2`
  - **FAST** setter sql via `User.set_bitfield_sql(:insane => true, :stupid => false) == 'my_bits = (my_bits | 6) - 4'`
  - simple access to bits e.g. `User.bitfields[:my_bits][:stupid] == 4`

@@ -16,11 +16,16 @@ module Bitfields
     bitfields[column] = Bitfields.extract_bits(options)
     bitfield_options[column] = options
 
-    # add instance methods
+    # add instance methods and scopes
     bitfields[column].keys.each do |bit_name|
       define_method(bit_name){ bitfield_value(bit_name) }
       define_method("#{bit_name}?"){ bitfield_value(bit_name) }
       define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
+      if options[:named_scopes] != false
+        scoping_method = (respond_to?(:scope) ? :scope : :named_scope) # AR 3.0+ uses scope
+        send scoping_method, bit_name, :conditions => bitfield_sql(bit_name => true)
+        send scoping_method, "not_#{bit_name}", :conditions => bitfield_sql(bit_name => false)
+      end
     end
 
     include Bitfields::InstanceMethods
