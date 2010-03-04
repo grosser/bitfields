@@ -1,7 +1,7 @@
 Save migrations and columns by storing multiple booleans in a single integer.
 
     class User < ActiveRecord::Base
-      extend Bitfields
+      include Bitfields
       bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
     end
 

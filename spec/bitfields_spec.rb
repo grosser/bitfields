@@ -1,29 +1,34 @@
 require 'spec/spec_helper'
 
 class User < ActiveRecord::Base
-  extend Bitfields
+  include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
 end
 
 class UserWithBitfieldOptions < ActiveRecord::Base
-  extend Bitfields
+  include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
 end
 
 class MultiBitUser < ActiveRecord::Base
   set_table_name 'users'
-  extend Bitfields
+  include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
 end
 
 class UserWithoutScopes < ActiveRecord::Base
   set_table_name 'users'
-  extend Bitfields
+  include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
 end
 
+class InheritedUser < User
+end
 
+class OverwrittenUser < User
+  bitfield :bits, 1 => :seller_inherited
+end
 
 describe Bitfields do
   before do
@@ -66,6 +71,22 @@ describe Bitfields do
 
     it "is false when set to falsy" do
       User.new(:seller => 'false').seller.should == false
+    end
+
+    it "stays true when set to true twice" do
+      u = User.new
+      u.seller = true
+      u.seller = true
+      u.seller.should == true
+      u.bits.should == 1
+    end
+
+    it "stays false when set to false twice" do
+      u = User.new(:bits => 3)
+      u.seller = false
+      u.seller = false
+      u.seller.should == false
+      u.bits.should == 2
     end
 
     it "changes the bits when setting to false" do
@@ -185,6 +206,29 @@ describe Bitfields do
 
     it "produces working negative scopes" do
       User.not_insane.seller.to_a.should == [@u1]
+    end
+  end
+
+  describe 'overwriting' do
+    it "does not change base class" do
+      OverwrittenUser.bitfields[:bits][:seller_inherited].should_not == nil
+      User.bitfields[:bits][:seller_inherited].should == nil
+    end
+
+    it "has inherited methods" do
+      User.respond_to?(:seller).should == true
+      OverwrittenUser.respond_to?(:seller).should == true
+    end
+
+    it "knows inherited values" do
+      pending
+      OverwrittenUser.bitfield_column(:seller).should == :bits
+    end
+  end
+
+  describe 'inheritance' do
+    it "knows inherited values" do
+      InheritedUser.bitfield_column(:seller).should == :bits
     end
   end
 end
