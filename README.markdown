@@ -15,6 +15,7 @@ Save migrations and columns by storing multiple booleans in a single integer.
  - scopes `User.seller.stupid.first` (deactivate with `:scopes => false`)
  - **FAST** sql via `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)' # 2, 1+2`
  - **FAST** setter sql via `User.set_bitfield_sql(:insane => true, :stupid => false) == 'my_bits = (my_bits | 6) - 4'`
+ - slow but short sql (e.g. for huge bit lists) with `:query_mode => :bit_operator`
  - simple access to bits e.g. `User.bitfields[:my_bits][:stupid] == 4`
 
 Install

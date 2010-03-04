@@ -49,27 +49,37 @@ module Bitfields
     end
 
     def bitfield_sql(bit_values)
-      # :seller => true ---> :my_bits => [1,3]
+      # sort bit_values by column
       columns = {}
       bit_values.each do |bit_name, value|
         column = bitfield_column(bit_name)
-        bit = bitfields[column][bit_name]
-
-        max = (bitfields[column].values.max * 2) - 1
-        columns[column] ||= (0..max).to_a # all possible values
-
-        # remove values that do not fit in
-        if value
-          columns[column].reject!{|i| i & bit == 0 } # reject values with bit off
-        else
-          columns[column].reject!{|i| i & bit == bit } # reject values with bit on
-        end
+        columns[column] ||= {}
+        columns[column][bit_name] = value
       end
 
-      # :my_bits => {:seller => [1,3,4]} ---> sql
-      columns.map do |column, values|
-        "#{table_name}.#{column} IN (#{values * ','})"
-      end * ' AND '
+      columns.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
+    end
+
+    def bitfield_sql_by_column(column, bit_values)
+      mode = (bitfield_options[column][:query_mode] || :in_list)
+      case mode
+      when :in_list then
+        max = (bitfields[column].values.max * 2) - 1
+        bits = (0..max).to_a # all possible bits
+        bit_values.each do |bit_name, value|
+          bit = bitfields[column][bit_name]
+          # reject values with: bit off for true, bit on for false
+          bits.reject!{|i| i & bit == (value ? 0 : bit) }
+        end
+        "#{table_name}.#{column} IN (#{bits * ','})"
+      when :bit_operator
+        bit_values.map do |bit_name, value|
+          column = bitfield_column(bit_name)
+          bit = bitfields[column][bit_name]
+          "(#{table_name}.#{column} & #{bit}) = #{value ? bit : 0})"
+        end * ' AND '
+      else raise("bitfields: unknown query mode #{mode.inspect}")
+      end
     end
 
     def set_bitfield_sql(bit_values)

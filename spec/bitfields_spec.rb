@@ -30,6 +30,12 @@ class OverwrittenUser < User
   bitfield :bits, 1 => :seller_inherited
 end
 
+class BitOperatorMode < ActiveRecord::Base
+  set_table_name 'users'
+  include Bitfields
+  bitfield :bits, 1 => :seller, 2 => :insane, :query_mode => :bit_operator
+end
+
 describe Bitfields do
   before do
     User.delete_all
@@ -141,6 +147,23 @@ describe Bitfields do
       u2 = MultiBitUser.create!(:seller => true, :one => false)
       u3 = MultiBitUser.create!(:seller => false, :one => false)
       MultiBitUser.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :one => false)).should == [u2]
+    end
+
+    describe 'with bit operator mode' do
+      it "generates bit-operator sql" do
+        BitOperatorMode.bitfield_sql(:seller => true).should == '(users.bits & 1) = 1)'
+      end
+
+      it "generates sql for each bit" do
+        BitOperatorMode.bitfield_sql(:seller => true, :insane => true).should == '(users.bits & 1) = 1) AND (users.bits & 2) = 2)'
+      end
+
+      it "generates working sql" do
+        u1 = BitOperatorMode.create!(:seller => true, :insane => true)
+        u2 = BitOperatorMode.create!(:seller => true, :insane => false)
+        u3 = BitOperatorMode.create!(:seller => false, :insane => false)
+        BitOperatorMode.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :insane => false)).should == [u2]
+      end
     end
   end
 
