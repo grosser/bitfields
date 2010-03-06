@@ -49,15 +49,8 @@ module Bitfields
     end
 
     def bitfield_sql(bit_values)
-      # sort bit_values by column
-      columns = {}
-      bit_values.each do |bit_name, value|
-        column = bitfield_column(bit_name)
-        columns[column] ||= {}
-        columns[column][bit_name] = value
-      end
-
-      columns.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
+      bits = group_bits_by_column(bit_values)
+      bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
     end
 
     def bitfield_sql_by_column(column, bit_values)
@@ -73,33 +66,40 @@ module Bitfields
         end
         "#{table_name}.#{column} IN (#{bits * ','})"
       when :bit_operator
-        bit_values.map do |bit_name, value|
-          column = bitfield_column(bit_name)
-          bit = bitfields[column][bit_name]
-          "(#{table_name}.#{column} & #{bit}) = #{value ? bit : 0})"
-        end * ' AND '
+        set, unset = bit_values_to_set_and_unset(column, bit_values)
+        "(#{table_name}.#{column} & #{set+unset}) = #{set}"
       else raise("bitfields: unknown query mode #{mode.inspect}")
       end
     end
 
     def set_bitfield_sql(bit_values)
-      # :seller => true, :insane => false ---> :my_bits => {:set => [1], :unset => [4]}
+      columns = group_bits_by_column(bit_values)
+      columns.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
+    end
+
+    def set_bitfield_sql_by_column(column, bit_values)
+      set, unset = bit_values_to_set_and_unset(column, bit_values)
+      "#{column} = (#{column} | #{set+unset}) - #{unset}"
+    end
+
+    def group_bits_by_column (bit_values)
       columns = {}
       bit_values.each do |bit_name, value|
         column = bitfield_column(bit_name)
-        bit = bitfields[column][bit_name]
-
-        columns[column] ||= {:set => 0, :unset => 0}
-
-        collector = (value ? :set : :unset)
-        columns[column][collector] += bit
+        columns[column] ||= {}
+        columns[column][bit_name] = value
       end
+      columns
+    end
 
-      # :my_bits => {:set => [1], :unset => [4]} ----> sql
-      columns.map do |column, changes|
-        changed = changes[:set] + changes[:unset]
-        "#{column} = (#{column} | #{changed}) - #{changes[:unset]}"
-      end * ', '
+    def bit_values_to_set_and_unset(column, bit_values)
+      set = 0
+      unset = 0
+      bit_values.each do |bit_name, value|
+        bit = bitfields[column][bit_name]
+        value ? set += bit : unset += bit
+      end
+      [set, unset]
     end
   end
 

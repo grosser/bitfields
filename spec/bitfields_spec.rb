@@ -151,11 +151,11 @@ describe Bitfields do
 
     describe 'with bit operator mode' do
       it "generates bit-operator sql" do
-        BitOperatorMode.bitfield_sql(:seller => true).should == '(users.bits & 1) = 1)'
+        BitOperatorMode.bitfield_sql(:seller => true).should == '(users.bits & 1) = 1'
       end
 
       it "generates sql for each bit" do
-        BitOperatorMode.bitfield_sql(:seller => true, :insane => true).should == '(users.bits & 1) = 1) AND (users.bits & 2) = 2)'
+        BitOperatorMode.bitfield_sql(:seller => true, :insane => false).should == '(users.bits & 3) = 1'
       end
 
       it "generates working sql" do
