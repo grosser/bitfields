@@ -21,7 +21,7 @@ e.g. 3 = 1->true 2->true 4->false, 4 = 1->false 2->false 4->true, 5 = 1->true 2-
 Install
 =======
 As Gem: ` sudo gem install bitfields `  
-Or as Rails plugin: ` script/plugins install git://github.com/grosser/bitfields.git `
+Or as Rails plugin: ` script/plugin install git://github.com/grosser/bitfields.git `
 
 ### Migration
 ALWAYS set a default, bitfield queries will not work for NULL
@@ -29,13 +29,12 @@ ALWAYS set a default, bitfield queries will not work for NULL
     OR
     add_column :users, :my_bits, :integer, :default => 0, :null => false
 
-Usage
-=====
-
-    # update all users
+Examples
+========
+Update all users
     User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
 
-    # delete the shop when a user is no longer a seller
+Delete the shop when a user is no longer a seller
     before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
 
 Author
