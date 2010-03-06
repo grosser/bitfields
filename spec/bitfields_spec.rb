@@ -7,7 +7,7 @@ end
 
 class UserWithBitfieldOptions < ActiveRecord::Base
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 end
 
 class MultiBitUser < ActiveRecord::Base
@@ -20,7 +20,7 @@ end
 class UserWithoutScopes < ActiveRecord::Base
   set_table_name 'users'
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :named_scopes => false
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 end
 
 class InheritedUser < User
@@ -53,7 +53,7 @@ describe Bitfields do
     end
 
     it "parses them correctly when set" do
-      UserWithBitfieldOptions.bitfield_options.should == {:bits => {:named_scopes => false}}
+      UserWithBitfieldOptions.bitfield_options.should == {:bits => {:scopes => false}}
     end
   end
 
