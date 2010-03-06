@@ -118,6 +118,26 @@ describe Bitfields do
       user.seller = true
       user.bits.should == 7
     end
+
+    describe 'changes' do
+      it "has no changes by defaut" do
+        User.new.changes.should == {}
+      end
+
+      it "records a change when setting" do
+        User.new(:seller => true).changes.should == {'seller' => [false, true], 'bits' => [0,1]}
+      end
+
+      it "records a change when unsetting" do
+        u = User.create!(:seller => true)
+        u.seller = false
+        u.changes.should == {'seller' => [true, false], 'bits' => [1,0]}
+      end
+
+      it "does not track duplicate changes" do
+        User.create!(:seller => false).changes.should == {}
+      end
+    end
   end
 
   describe :bitfield_sql do

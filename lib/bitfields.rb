@@ -111,11 +111,17 @@ module Bitfields
 
     def set_bitfield_value(bit_name, value)
       column, bit, current_value = bitfield_info(bit_name)
-      if TRUE_VALUES.include?(value)
-        send("#{column}=", current_value | bit) # bit8 + bit1 == 9 and bit8 + bit8 == 8
-      else
-        send("#{column}=", (current_value | bit) - bit) # bit1 - bit8 == 1 and bit8 - bit8 == 0
+      new_value = TRUE_VALUES.include?(value)
+      old_value = bitfield_value(bit_name)
+      return if new_value == old_value
+
+      if defined? changed_attributes
+        send(:changed_attributes).merge!(bit_name.to_s => old_value)
       end
+
+      # 8 + 1 == 9 // 8 + 8 == 8 // 1 - 8 == 1 // 8 - 8 == 0
+      new_bits = if new_value then current_value | bit else (current_value | bit) - bit end
+      send("#{column}=", new_bits)
     end
 
     def bitfield_info(bit_name)

@@ -23,6 +23,12 @@ Install
 As Gem: ` sudo gem install bitfields `  
 Or as Rails plugin: ` script/plugins install git://github.com/grosser/bitfields.git `
 
+### Migration
+ALWAYS set a default, bitfield queries will not work for NULL
+    t.integer :my_bits, :default => 0, :null => false
+    OR
+    add_column :users, :my_bits, :integer, :default => 0, :null => false
+
 Usage
 =====
 
