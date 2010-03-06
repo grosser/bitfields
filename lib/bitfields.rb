@@ -45,13 +45,20 @@ module Bitfields
     end
 
     def bitfield_column(bit_name)
-      bitfields.detect{|c, bits| bits.keys.include?(bit_name) }.first
+      bitfields.detect{|c, bits| bits.keys.include?(bit_name.to_sym) }.first
     end
 
     def bitfield_sql(bit_values)
       bits = group_bits_by_column(bit_values)
       bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
     end
+
+    def set_bitfield_sql(bit_values)
+      columns = group_bits_by_column(bit_values)
+      columns.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
+    end
+
+    private
 
     def bitfield_sql_by_column(column, bit_values)
       mode = (bitfield_options[column][:query_mode] || :in_list)
@@ -66,44 +73,39 @@ module Bitfields
         end
         "#{table_name}.#{column} IN (#{bits * ','})"
       when :bit_operator
-        set, unset = bit_values_to_set_and_unset(column, bit_values)
-        "(#{table_name}.#{column} & #{set+unset}) = #{set}"
+        on, off = bit_values_to_on_off(column, bit_values)
+        "(#{table_name}.#{column} & #{on+off}) = #{on}"
       else raise("bitfields: unknown query mode #{mode.inspect}")
       end
     end
 
-    def set_bitfield_sql(bit_values)
-      columns = group_bits_by_column(bit_values)
-      columns.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
-    end
-
     def set_bitfield_sql_by_column(column, bit_values)
-      set, unset = bit_values_to_set_and_unset(column, bit_values)
-      "#{column} = (#{column} | #{set+unset}) - #{unset}"
+      on, off = bit_values_to_on_off(column, bit_values)
+      "#{column} = (#{column} | #{on+off}) - #{off}"
     end
 
-    def group_bits_by_column (bit_values)
+    def group_bits_by_column(bit_values)
       columns = {}
       bit_values.each do |bit_name, value|
-        column = bitfield_column(bit_name)
+        column = bitfield_column(bit_name.to_sym)
         columns[column] ||= {}
-        columns[column][bit_name] = value
+        columns[column][bit_name.to_sym] = value
       end
       columns
     end
 
-    def bit_values_to_set_and_unset(column, bit_values)
-      set = 0
-      unset = 0
+    def bit_values_to_on_off(column, bit_values)
+      on = off = 0
       bit_values.each do |bit_name, value|
         bit = bitfields[column][bit_name]
-        value ? set += bit : unset += bit
+        value ? on += bit : off += bit
       end
-      [set, unset]
+      [on, off]
     end
   end
 
   module InstanceMethods
+    private
     def bitfield_value(bit_name)
       column, bit, current_value = bitfield_info(bit_name)
       current_value & bit != 0
