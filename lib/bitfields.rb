@@ -19,6 +19,12 @@ module Bitfields
     bitfields
   end
 
+  # AR 3+ -> :scope, below :named_scope
+  def self.ar_scoping_method
+    return :scope if defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
+    :named_scope
+  end
+
   module ClassMethods
     def bitfield(column, options)
       # prepare ...
@@ -37,7 +43,7 @@ module Bitfields
         define_method("#{bit_name}?"){ bitfield_value(bit_name) }
         define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
         if options[:scopes] != false
-          scoping_method = (respond_to?(:named_scope) ? :named_scope : :scope) # AR 3.0+ uses scope
+          scoping_method = Bitfields.ar_scoping_method
           send scoping_method, bit_name, :conditions => bitfield_sql(bit_name => true)
           send scoping_method, "not_#{bit_name}", :conditions => bitfield_sql(bit_name => false)
         end
