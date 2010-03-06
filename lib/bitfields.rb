@@ -37,7 +37,7 @@ module Bitfields
         define_method("#{bit_name}?"){ bitfield_value(bit_name) }
         define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
         if options[:scopes] != false
-          scoping_method = (respond_to?(:scope) ? :scope : :named_scope) # AR 3.0+ uses scope
+          scoping_method = (respond_to?(:named_scope) ? :named_scope : :scope) # AR 3.0+ uses scope
           send scoping_method, bit_name, :conditions => bitfield_sql(bit_name => true)
           send scoping_method, "not_#{bit_name}", :conditions => bitfield_sql(bit_name => false)
         end
