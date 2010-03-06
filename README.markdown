@@ -11,7 +11,7 @@ Save migrations and columns by storing multiple booleans in a single integer.
     user.my_bits == 9
 
  - reader and writers
- - changes `user.chamges == {:seller => [false, true], :insane => [false, true]}`
+ - changes `user.chamges == {:seller => [false, true]}`
  - scopes `User.seller.stupid.first` (deactivate with `:scopes => false`)
  - indexable sql via `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)' # 2, 1+2`
  - un-indexable sql with `bitfield ... ,:query_mode => :bit_operator` --> `User.bitfield_sql(:insane => true, :stupid => false) == '(users.my_bits & 3) = 1'`
@@ -32,7 +32,11 @@ ALWAYS set a default, bitfield queries will not work for NULL
 Usage
 =====
 
-  User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
+    # update all users
+    User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
+
+    # delete the shop when a user is no longer a seller
+    before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
 
 Authors
 =======
