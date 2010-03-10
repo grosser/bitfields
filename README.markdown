@@ -1,5 +1,5 @@
 Save migrations and columns by storing multiple booleans in a single integer.  
-e.g. 3 = 1->true 2->true 4->false, 4 = 1->false 2->false 4->true, 5 = 1->true 2->false 4->true
+e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,..)
 
     class User < ActiveRecord::Base
       include Bitfields
