@@ -9,13 +9,14 @@ e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,.
     user = User.new(:seller => true, :insane => true)
     user.seller == true
     user.stupid? == false
-    user.my_bits == 9
+    user.my_bits == 3
 
  - records changes `user.chamges == {:seller => [false, true]}`
  - adds scopes `User.seller.stupid.first` (deactivate with `bitfield ..., :scopes => false`)
  - builds sql `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)'` (2 and 1+2)
  - builds not-index-using sql with `bitfield ... ,:query_mode => :bit_operator` and `User.bitfield_sql(:insane => true, :stupid => false) == '(users.my_bits & 3) = 1'`, always slower than IN() sql, since it will not use an existing index (tested for up to 64 values)
  - builds update sql `User.set_bitfield_sql(:insane => true, :stupid => false) == 'my_bits = (my_bits | 6) - 4'`
+ - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
  - gives access to bits `User.bitfields[:my_bits][:stupid] == 4`
 
 Install
