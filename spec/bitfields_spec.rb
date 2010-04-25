@@ -57,6 +57,14 @@ describe Bitfields do
     end
   end
 
+  describe :bitfield_column do
+    it "raises a nice error when i use a unknown bitfield" do
+      lambda{
+        User.bitfield_column(:xxx)
+      }.should raise_error(RuntimeError, 'Unknown bitfield xxx')
+    end
+  end
+
   describe 'attribute accessors' do
     it "has everything on false by default" do
       User.new.seller.should == false

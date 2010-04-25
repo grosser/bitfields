@@ -53,7 +53,9 @@ module Bitfields
     end
 
     def bitfield_column(bit_name)
-      bitfields.detect{|c, bits| bits.keys.include?(bit_name.to_sym) }.first
+      found = bitfields.detect{|c, bits| bits.keys.include?(bit_name.to_sym) }
+      raise "Unknown bitfield #{bit_name}" unless found
+      found.first
     end
 
     def bitfield_sql(bit_values)
