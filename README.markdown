@@ -38,6 +38,10 @@ Update all users
 Delete the shop when a user is no longer a seller
     before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
 
+TODO
+====
+ - convenient named scope `User.with_bitfields(:xxx=>true, :yy=>false)`
+
 Author
 ======
 [Michael Grosser](http://pragmatig.wordpress.com)  
