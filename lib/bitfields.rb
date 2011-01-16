@@ -59,13 +59,13 @@ module Bitfields
     end
 
     def bitfield_sql(bit_values)
-      bits = group_bits_by_column(bit_values)
+      bits = group_bits_by_column(bit_values).sort_by{|c,v| c.to_s }
       bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
     end
 
     def set_bitfield_sql(bit_values)
-      columns = group_bits_by_column(bit_values)
-      columns.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
+      bits = group_bits_by_column(bit_values).sort_by{|c,v| c.to_s }
+      bits.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
     end
 
     private
