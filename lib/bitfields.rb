@@ -58,9 +58,9 @@ module Bitfields
       found.first
     end
 
-    def bitfield_sql(bit_values)
+    def bitfield_sql(bit_values, options={})
       bits = group_bits_by_column(bit_values).sort_by{|c,v| c.to_s }
-      bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values) } * ' AND '
+      bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values, options) } * ' AND '
     end
 
     def set_bitfield_sql(bit_values)
@@ -70,8 +70,8 @@ module Bitfields
 
     private
 
-    def bitfield_sql_by_column(column, bit_values)
-      mode = (bitfield_options[column][:query_mode] || :in_list)
+    def bitfield_sql_by_column(column, bit_values, options={})
+      mode = options[:query_mode] || (bitfield_options[column][:query_mode] || :in_list)
       case mode
       when :in_list then
         max = (bitfields[column].values.max * 2) - 1
