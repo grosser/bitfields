@@ -13,23 +13,36 @@ def create(bit_counts, count)
   end
 end
 
-def connect
-  ActiveRecord::Base.establish_connection(
-    :adapter => "sqlite3",
-    :database => ":memory:"
-  )
+def connect(db)
+  puts db
+  if db == 'mysql'
+    puts 'using mysql'
+    ActiveRecord::Base.establish_connection(
+      :adapter => "mysql",
+      :database => "bitfields_benchmark"
+    )
+  else
+    puts 'using sqlite'
+    ActiveRecord::Base.establish_connection(
+      :adapter => "sqlite3",
+        :database => ":memory:"
+    )
+  end
 end
 
-def create_model_table(bit_counts)
+def create_model_table(bit_counts, use_index)
   ActiveRecord::Schema.define(:version => 2) do
+    drop_table :users rescue nil
     create_table :users do |t|
       bit_counts.each do |bit_count|
         t.integer "bit_#{bit_count}", :default => 0, :null => false
       end
     end
 
-    bit_counts.each do |bit_count|
-      add_index :users, "bit_#{bit_count}"
+    if use_index
+      bit_counts.each do |bit_count|
+        add_index :users, "bit_#{bit_count}"
+      end
     end
   end
 end
@@ -54,7 +67,7 @@ end
 def test_speed(bit_counts, query_mode)
   bit_counts.each do |bit_count|
     sql = User.bitfield_sql({"bit_#{bit_count}_1" => true}, :query_mode => query_mode)
-#    puts sql
+#    puts sql[0..100]
     time = benchmark do
       User.count sql
     end
@@ -63,16 +76,16 @@ def test_speed(bit_counts, query_mode)
 end
 
 bit_counts = [2,4,6,8,10,12,14,16]
-tests = [1_000, 10_000, 100_000, 1_000_000, 2_000_000]
+tests = [1_000, 10_000, 100_000, 500_000, 1_000_000, 2_000_000]
+use_index = false
 
 $LOAD_PATH.unshift File.expand_path('lib')
 require 'rubygems'
 require 'active_record'
 require 'bitfields'
 
-connect
-puts 'xxx'
-create_model_table(bit_counts)
+connect(ARGV[0])
+create_model_table(bit_counts, use_index)
 class User < ActiveRecord::Base
 end
 create_model_fields(bit_counts)
@@ -81,7 +94,8 @@ puts "creating test data"
 last = 0
 tests.each do |count|
   create(bit_counts, count-last)
-  last += count
+  puts User.count
+  last = count
 
   puts "testing with #{count} records -- bit_operator"
   test_speed(bit_counts, :bit_operator)
