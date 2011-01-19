@@ -1,5 +1,5 @@
 bit_counts = [2,3,4,6,8,10,12,14]
-record_counts = (1..20).to_a.map{|i| i * 50_000 }
+record_counts = (1..10).to_a.map{|i| i * 100_000 }
 use_index = true
 database = ARGV[0]
 

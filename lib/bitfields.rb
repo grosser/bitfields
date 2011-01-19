@@ -71,7 +71,7 @@ module Bitfields
     private
 
     def bitfield_sql_by_column(column, bit_values, options={})
-      mode = options[:query_mode] || (bitfield_options[column][:query_mode] || :in_list)
+      mode = options[:query_mode] || (bitfield_options[column][:query_mode] || :bit_operator)
       case mode
       when :in_list then
         max = (bitfields[column].values.max * 2) - 1

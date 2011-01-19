@@ -150,23 +150,23 @@ describe Bitfields do
 
   describe :bitfield_sql do
     it "includes true states" do
-      User.bitfield_sql(:insane => true).should == 'users.bits IN (2,3,6,7)' # 2, 1+2, 2+4, 1+2+4
+      User.bitfield_sql({:insane => true}, :query_mode => :in_list).should == 'users.bits IN (2,3,6,7)' # 2, 1+2, 2+4, 1+2+4
     end
 
     it "includes invalid states" do
-      User.bitfield_sql(:insane => false).should == 'users.bits IN (0,1,4,5)' # 0, 1, 4, 4+1
+      User.bitfield_sql({:insane => false}, :query_mode => :in_list).should == 'users.bits IN (0,1,4,5)' # 0, 1, 4, 4+1
     end
 
     it "can combine multiple fields" do
-      User.bitfield_sql(:seller => true, :insane => true).should == 'users.bits IN (3,7)' # 1+2, 1+2+4
+      User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :in_list).should == 'users.bits IN (3,7)' # 1+2, 1+2+4
     end
 
     it "can combine multiple fields with different values" do
-      User.bitfield_sql(:seller => true, :insane => false).should == 'users.bits IN (1,5)' # 1, 1+4
+      User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :in_list).should == 'users.bits IN (1,5)' # 1, 1+4
     end
 
     it "combines multiple columns into one sql" do
-      sql = MultiBitUser.bitfield_sql(:seller => true, :insane => false, :one => true, :four => true)
+      sql = MultiBitUser.bitfield_sql({:seller => true, :insane => false, :one => true, :four => true}, :query_mode => :in_list)
       sql.should == 'users.bits IN (1,5) AND users.more_bits IN (5,7)' # 1, 1+4 AND 1+4, 1+2+4
     end
 
@@ -174,7 +174,7 @@ describe Bitfields do
       u1 = MultiBitUser.create!(:seller => true, :one => true)
       u2 = MultiBitUser.create!(:seller => true, :one => false)
       u3 = MultiBitUser.create!(:seller => false, :one => false)
-      MultiBitUser.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :one => false)).should == [u2]
+      MultiBitUser.all(:conditions => MultiBitUser.bitfield_sql({:seller => true, :one => false}, :query_mode => :in_list)).should == [u2]
     end
 
     describe 'with bit operator mode' do
