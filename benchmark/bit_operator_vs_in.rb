@@ -1,4 +1,4 @@
-bit_counts = [2,3,4,5,6,7,8,9,10,11,12,13,14]
+bit_counts = [2,3,4,6,8,10,12,14]
 record_counts = (1..20).to_a.map{|i| i * 50_000 }
 use_index = true
 database = ARGV[0]
@@ -113,23 +113,23 @@ record_counts.each do |record_count|
 end
 
 # print them
-colors = {:bit => '00xx00', :in => 'xx0000'}
+colors = {:bit => 'xx0000', :in => '0000xx'}
 alpha_num = (('0'..'9').to_a + ('a'..'f').to_a).reverse
-title = "bit-operator vs IN() -- #{use_index ? 'with' : 'without'} index"
+title = "bit-operator vs IN -- #{use_index ? 'with' : 'without'} index"
 url = GoogleChart::LineChart.new('600x500', title, false) do |line|
   max_y = 0
   graphs.each do |type, line_data|
     bit_counts.each do |bit_count|
       data = record_counts.map{|rc| line_data[rc][bit_count] }
       name = "#{bit_count}bits (#{type})"
-      color = colors[type].sub('xx', alpha_num[bit_count]*2)
+      color = colors[type].sub('xx', alpha_num[bit_counts.index(bit_count)]*2)
       line.data(name, data, color)
       max_y = [data.max, max_y].max
     end
   end
 
   line.axis :x, :labels => record_counts.map{|c|"#{c/1000}K"}
-  line.axis :y, :labels => ['0', "%.3f" % [max_y*100]]
+  line.axis :y, :labels => ['0', "%.3fms" % [max_y*1000]]
 end.to_url
 
 puts url
