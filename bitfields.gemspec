@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{bitfields}
-  s.version = "0.1.5"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michael Grosser"]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
     "README.markdown",
     "Rakefile",
     "VERSION",
-    "benchmark/1.rb",
+    "benchmark/bit_operator_vs_in.rb",
     "bitfields.gemspec",
     "lib/bitfields.rb",
     "spec/bitfields_spec.rb",
