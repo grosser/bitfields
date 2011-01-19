@@ -90,15 +90,6 @@ def test_speed(bit_counts, query_mode)
   Hash[result]
 end
 
-#determines a unique color based on a name
-def color_for(name)
-  name = name.inspect + "some randomness for fun"
-  hash = (name.hash % 1_000_000_000).to_s #get a hash of a constant size
-  colors = [hash[0..1], hash[2..3], hash[4..5]].map{|c| c.to_f / 100.0 * 16} #use 3 parts of the hash to get numbers from 0 to 15.99
-  palette = ('0'..'9').to_a + ('a'..'f').to_a #hex values 0..f
-  colors.map{|c| palette[c.floor].to_s * 2} * '' #each color is duplicated and the joined
-end
-
 connect(database)
 create_model_table(bit_counts, use_index)
 class User < ActiveRecord::Base
@@ -108,10 +99,10 @@ create_model_fields(bit_counts)
 puts "creating test data"
 last = 0
 
+# collect graph data
 graphs = {:bit => {}, :in => {}}
-data = record_counts.map do |record_count|
+record_counts.each do |record_count|
   create(bit_counts, record_count-last)
-  puts User.count
   last = record_count
 
   puts "testing with #{record_count} records -- bit_operator"
@@ -119,26 +110,26 @@ data = record_counts.map do |record_count|
 
   puts "testing with #{record_count} records -- in_list"
   graphs[:in][record_count] = test_speed(bit_counts, :in_list)
-
 end
 
+# print them
 colors = {:bit => '00xx00', :in => 'xx0000'}
 alpha_num = (('0'..'9').to_a + ('a'..'f').to_a).reverse
 title = "bit-operator vs IN() -- #{use_index ? 'with' : 'without'} index"
 url = GoogleChart::LineChart.new('600x500', title, false) do |line|
-  max = 0
+  max_y = 0
   graphs.each do |type, line_data|
     bit_counts.each do |bit_count|
       data = record_counts.map{|rc| line_data[rc][bit_count] }
       name = "#{bit_count}bits (#{type})"
       color = colors[type].sub('xx', alpha_num[bit_count]*2)
       line.data(name, data, color)
-      max = [data.max, max].max
+      max_y = [data.max, max_y].max
     end
   end
 
   line.axis :x, :labels => record_counts.map{|c|"#{c/1000}K"}
-  line.axis :y, :labels => ['0', "%.3f" % [max*100]]
+  line.axis :y, :labels => ['0', "%.3f" % [max_y*100]]
 end.to_url
 
 puts url
