@@ -36,6 +36,10 @@ class BitOperatorMode < ActiveRecord::Base
   bitfield :bits, 1 => :seller, 2 => :insane, :query_mode => :bit_operator
 end
 
+class ManyBitsUser < User
+  set_table_name 'users'
+end
+
 describe Bitfields do
   before do
     User.delete_all
@@ -44,6 +48,17 @@ describe Bitfields do
   describe :bitfields do
     it "parses them correctly" do
       User.bitfields.should == {:bits => {:seller => 1, :insane => 2, :stupid => 4}}
+    end
+    
+    it "is fast for huge number of bits" do
+      bits = {}
+      0.upto(20) do |bit|
+        bits[2**bit] = "my_bit_#{bit}"
+      end
+
+      Timeout.timeout(0.2) do
+        ManyBitsUser.class_eval{ bitfield :bits, bits }
+      end
     end
   end
 

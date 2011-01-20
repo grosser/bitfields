@@ -5,6 +5,7 @@ if ENV['VERSION']
 end
 $LOAD_PATH << 'lib'
 require 'bitfields'
+require 'timeout'
 
 require 'active_record'
 puts "Using ActiveRecord #{ActiveRecord::VERSION::STRING}"
