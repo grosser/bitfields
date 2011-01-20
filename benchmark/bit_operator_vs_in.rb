@@ -80,9 +80,11 @@ end
 def test_speed(bit_counts, query_mode)
   result = bit_counts.map do |bit_count|
     sql = User.bitfield_sql({"bit_#{bit_count}_1" => true}, :query_mode => query_mode)
-#    puts sql[0..100]
+    sql = "select SQL_NO_CACHE count(*) from users where #{sql}"
+    # puts User.connection.select_all("EXPLAIN #{sql}").inspect
+    # puts sql[0..100]
     time = benchmark do
-      User.count sql
+      User.connection.execute sql
     end
     puts "#{bit_count} -> #{time}"
     [bit_count, time]
