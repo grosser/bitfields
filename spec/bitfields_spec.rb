@@ -80,6 +80,13 @@ describe Bitfields do
     end
   end
 
+  describe :bitfield_values do
+    it "contains all bits with values" do
+      User.new.bitfield_values(:bits).should == {:insane=>false, :stupid=>false, :seller=>false}
+      User.new(:bits => 15).bitfield_values(:bits).should == {:insane=>true, :stupid=>true, :seller=>true}
+    end
+  end
+
   describe 'attribute accessors' do
     it "has everything on false by default" do
       User.new.seller.should == false

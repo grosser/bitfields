@@ -115,7 +115,12 @@ module Bitfields
   end
 
   module InstanceMethods
+    def bitfield_values(column)
+      Hash[bitfields[column.to_sym].map{|bit_name, bit| [bit_name, bitfield_value(bit_name)]}]
+    end
+
     private
+
     def bitfield_value(bit_name)
       column, bit, current_value = bitfield_info(bit_name)
       current_value & bit != 0
