@@ -52,6 +52,6 @@ TODO
 
 Author
 ======
-[Michael Grosser](http://pragmatig.wordpress.com)  
-grosser.michael@gmail.com  
+[Michael Grosser](http://grosser.it)  
+michael@grosser.it  
 Hereby placed under public domain, do what you want, just do not hold me accountable...
