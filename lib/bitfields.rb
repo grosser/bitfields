@@ -3,6 +3,7 @@ require 'active_support'
 module Bitfields
   VERSION = File.read( File.join(File.dirname(__FILE__),'..','VERSION') ).strip
   TRUE_VALUES = [true, 1, '1', 't', 'T', 'true', 'TRUE'] # taken from ActiveRecord::ConnectionAdapters::Column
+  class DuplicateBitNameError < ArgumentError; end
 
   def self.included(base)
     base.class_inheritable_accessor :bitfields, :bitfield_options
@@ -14,6 +15,7 @@ module Bitfields
     options.keys.select{|key| key.is_a?(Fixnum) }.each do |bit|
       raise "#{bit} is not a power of 2 !!" unless bit.to_s(2).scan('1').size == 1
       bit_name = options.delete(bit).to_sym
+      raise DuplicateBitNameError if bitfields.include?(bit_name)
       bitfields[bit_name] = bit
     end
     bitfields
@@ -26,10 +28,11 @@ module Bitfields
   end
 
   module ClassMethods
-    def bitfield(column, options)
+    def bitfield(column, *args)
       # prepare ...
       column = column.to_sym
-      options = options.dup # since we will modify them...
+      options = (args.last.is_a?(Hash) ? args.pop.dup : {}) # since we will modify them...
+      args.each_with_index{|field,i| options[2**(i+1)] = field } # add fields given in normal args to options
 
       # extract options
       self.bitfields ||= {}

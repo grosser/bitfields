@@ -36,6 +36,23 @@ class BitOperatorMode < ActiveRecord::Base
   bitfield :bits, 1 => :seller, 2 => :insane, :query_mode => :bit_operator
 end
 
+class WithoutThePowerOfTwo < ActiveRecord::Base
+  set_table_name 'users'
+  include Bitfields
+  bitfield :bits, :seller, :insane, :query_mode => :bit_operator
+end
+
+class WithoutThePowerOfTwoWithoutOptions < ActiveRecord::Base
+  set_table_name 'users'
+  include Bitfields
+  bitfield :bits, :seller, :insane
+end
+
+class CheckRaise < ActiveRecord::Base
+  set_table_name 'users'
+  include Bitfields
+end
+
 class ManyBitsUser < User
   set_table_name 'users'
 end
@@ -214,6 +231,30 @@ describe Bitfields do
         u3 = BitOperatorMode.create!(:seller => false, :insane => false)
         BitOperatorMode.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :insane => false)).should == [u2]
       end
+    end
+
+    describe 'without the power of two' do
+      it 'has all fields' do
+        u = WithoutThePowerOfTwo.create!(:seller => false, :insane => true)
+        u.seller.should == false
+        u.insane.should == true
+        WithoutThePowerOfTwo.bitfield_options.should == {:bits=>{:query_mode=>:bit_operator}}
+      end
+
+      it "can e built without options" do
+        u = WithoutThePowerOfTwoWithoutOptions.create!(:seller => false, :insane => true)
+        u.seller.should == false
+        u.insane.should == true
+        WithoutThePowerOfTwoWithoutOptions.bitfield_options.should == {:bits=>{}}
+      end
+    end
+
+    it "checks that bitfields are unique" do
+      lambda{
+        CheckRaise.class_eval do
+          bitfield :foo, :bar, :baz, :bar
+        end
+      }.should raise_error(Bitfields::DuplicateBitNameError)
     end
   end
 
