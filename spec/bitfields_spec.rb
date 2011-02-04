@@ -2,38 +2,38 @@ require 'spec/spec_helper'
 
 class User < ActiveRecord::Base
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
+  bitfield :bits, :seller, :insane, :stupid
 end
 
 class UserWithBitfieldOptions < ActiveRecord::Base
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
+  bitfield :bits, :seller, :insane, :stupid, :scopes => false
 end
 
 class MultiBitUser < ActiveRecord::Base
   set_table_name 'users'
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
-  bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
+  bitfield :bits, :seller, :insane, :stupid
+  bitfield :more_bits, :one, :two, :four
 end
 
 class UserWithoutScopes < ActiveRecord::Base
   set_table_name 'users'
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
+  bitfield :bits, :seller, :insane, :stupid, :scopes => false
 end
 
 class InheritedUser < User
 end
 
 class OverwrittenUser < User
-  bitfield :bits, 1 => :seller_inherited
+  bitfield :bits, :seller_inherited
 end
 
 class BitOperatorMode < ActiveRecord::Base
   set_table_name 'users'
   include Bitfields
-  bitfield :bits, 1 => :seller, 2 => :insane, :query_mode => :bit_operator
+  bitfield :bits, :seller, :insane, :query_mode => :bit_operator
 end
 
 class ManyBitsUser < User
