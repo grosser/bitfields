@@ -39,7 +39,7 @@ end
 class WithoutThePowerOfTwo < ActiveRecord::Base
   set_table_name 'users'
   include Bitfields
-  bitfield :bits, :seller, :insane, :query_mode => :bit_operator
+  bitfield :bits, :seller, :insane, :stupid, :query_mode => :bit_operator
 end
 
 class WithoutThePowerOfTwoWithoutOptions < ActiveRecord::Base
@@ -234,6 +234,11 @@ describe Bitfields do
     end
 
     describe 'without the power of two' do
+      it 'uses correct bits' do
+        u = WithoutThePowerOfTwo.create!(:seller => false, :insane => true, :stupid => true)
+        u.bits.should == 6
+      end
+
       it 'has all fields' do
         u = WithoutThePowerOfTwo.create!(:seller => false, :insane => true)
         u.seller.should == false

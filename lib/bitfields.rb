@@ -32,7 +32,7 @@ module Bitfields
       # prepare ...
       column = column.to_sym
       options = (args.last.is_a?(Hash) ? args.pop.dup : {}) # since we will modify them...
-      args.each_with_index{|field,i| options[2**(i+1)] = field } # add fields given in normal args to options
+      args.each_with_index{|field,i| options[2**i] = field } # add fields given in normal args to options
 
       # extract options
       self.bitfields ||= {}

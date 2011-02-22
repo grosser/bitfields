@@ -1,4 +1,4 @@
-Save migrations and columns by storing multiple booleans in a single integer.  
+Save migrations and columns by storing multiple booleans in a single integer.<br/>
 e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,..)
 
     class User < ActiveRecord::Base
@@ -21,7 +21,7 @@ e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,.
 
 Install
 =======
-As Gem: ` sudo gem install bitfields `  
+As Gem: ` sudo gem install bitfields `<br/>
 Or as Rails plugin: ` rails plugin install git://github.com/grosser/bitfields.git `
 
 ### Migration
@@ -40,6 +40,7 @@ Delete the shop when a user is no longer a seller
 
 TIPS
 ====
+ - [Upgrading] in version 0.2.2 the first field(when not given as hash) used bit 2 -> add a bogus field in first position
  - Never do: "#{bitfield_sql(...)} AND #{bitfield_sql(...)}", merge both into one hash
  - bit_operator is faster in most cases, use :query_mode => :in_list sparingly
  - Standard mysql integer is 4 byte -> 32 bitfields
@@ -56,6 +57,6 @@ Authors
 ### [Contributors](http://github.com/grosser/bitfields/contributors)
  - [Hellekin O. Wolf](https://github.com/hellekin)
 
-[Michael Grosser](http://grosser.it)  
-michael@grosser.it  
+[Michael Grosser](http://grosser.it)<br/>
+michael@grosser.it<br/>
 Hereby placed under public domain, do what you want, just do not hold me accountable...
