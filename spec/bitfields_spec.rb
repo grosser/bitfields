@@ -338,15 +338,19 @@ describe Bitfields do
       User.respond_to?(:seller).should == true
       OverwrittenUser.respond_to?(:seller).should == true
     end
-
-    it "knows inherited values" do
-      pending
-      OverwrittenUser.bitfield_column(:seller).should == :bits
-    end
   end
 
   describe 'inheritance' do
-    it "knows inherited values" do
+    it "knows overwritten values and normal" do
+      User.bitfields.should == {:bits=>{:seller=>1, :insane=>2, :stupid=>4}}
+      OverwrittenUser.bitfields.should == {:bits=>{:seller_inherited=>1}}
+    end
+
+    xit "knows inherited values when overwriting" do
+      OverwrittenUser.bitfield_column(:seller).should == :bits
+    end
+
+    xit "knows inherited values without overwriting" do
       InheritedUser.bitfield_column(:seller).should == :bits
     end
   end

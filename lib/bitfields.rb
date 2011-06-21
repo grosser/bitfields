@@ -1,4 +1,5 @@
 require 'active_support'
+require 'active_support/version'
 
 module Bitfields
   VERSION = File.read( File.join(File.dirname(__FILE__),'..','VERSION') ).strip
@@ -6,7 +7,9 @@ module Bitfields
   class DuplicateBitNameError < ArgumentError; end
 
   def self.included(base)
-    base.class_inheritable_accessor :bitfields, :bitfield_options
+    class << base
+      attr_accessor :bitfields, :bitfield_options
+    end
     base.extend Bitfields::ClassMethods
   end
 
@@ -119,7 +122,7 @@ module Bitfields
 
   module InstanceMethods
     def bitfield_values(column)
-      Hash[bitfields[column.to_sym].map{|bit_name, bit| [bit_name, bitfield_value(bit_name)]}]
+      Hash[self.class.bitfields[column.to_sym].map{|bit_name, bit| [bit_name, bitfield_value(bit_name)]}]
     end
 
     private
