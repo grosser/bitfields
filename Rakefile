@@ -1,12 +1,11 @@
-require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = '--backtrace --color'
+task :default do
+  sh "rspec spec"
 end
 
-task :default do
-  [2,3].each do |version|
-    sh "VERSION='~>#{version}' rake spec" rescue nil
-  end
+task :all do
+  sh "AR=2.3.12 bundle && bundle exec rake"
+  sh "AR=3.0.8 bundle && bundle exec rake"
+  sh "AR=3.1.0.rc4 bundle && bundle exec rake"
 end
 
 begin
