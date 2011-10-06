@@ -26,6 +26,7 @@ Or as Rails plugin: ` rails plugin install git://github.com/grosser/bitfields.gi
 
 ### Migration
 ALWAYS set a default, bitfield queries will not work for NULL
+
     t.integer :my_bits, :default => 0, :null => false
     OR
     add_column :users, :my_bits, :integer, :default => 0, :null => false
