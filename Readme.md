@@ -34,9 +34,11 @@ ALWAYS set a default, bitfield queries will not work for NULL
 Examples
 ========
 Update all users
+
     User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
 
 Delete the shop when a user is no longer a seller
+
     before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
 
 TIPS
