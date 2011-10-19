@@ -1,11 +1,11 @@
-task :default do
+task :spec do
   sh "rspec spec"
 end
 
-task :all do
-  sh "AR=2.3.12 (bundle || bundle install) && bundle exec rake"
-  sh "AR=3.0.8 (bundle || bundle install) && bundle exec rake"
-  sh "AR=3.1.0.rc4 (bundle || bundle install) && bundle exec rake"
+task :default do
+  sh "AR=2.3.14 && (bundle || bundle install) && bundle exec rake spec"
+  sh "AR=3.0.10 && (bundle || bundle install) && bundle exec rake spec"
+  sh "AR=3.1.1 && (bundle || bundle install) && bundle exec rake spec"
 end
 
 begin
