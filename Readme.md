@@ -62,4 +62,6 @@ Authors
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
-Hereby placed under public domain, do what you want, just do not hold me accountable...
+Hereby placed under public domain, do what you want, just do not hold me accountable...<br/>
+[![Build Status](https://secure.travis-ci.org/grosser/bitfields.png)](http://travis-ci.org/grosser/bitfields)
+
