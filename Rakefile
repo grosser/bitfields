@@ -3,9 +3,9 @@ task :default do
 end
 
 task :all do
-  sh "AR=2.3.12 bundle && bundle exec rake"
-  sh "AR=3.0.8 bundle && bundle exec rake"
-  sh "AR=3.1.0.rc4 bundle && bundle exec rake"
+  sh "AR=2.3.12 (bundle || bundle install) && bundle exec rake"
+  sh "AR=3.0.8 (bundle || bundle install) && bundle exec rake"
+  sh "AR=3.1.0.rc4 (bundle || bundle install) && bundle exec rake"
 end
 
 begin
