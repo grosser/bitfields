@@ -57,6 +57,17 @@ class ManyBitsUser < User
   set_table_name 'users'
 end
 
+class InitializedUser < User
+  set_table_name 'users'
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
+
+  after_initialize do
+    self.seller = true
+    self.insane = false
+  end
+end
+
+
 describe Bitfields do
   before do
     User.delete_all
@@ -346,12 +357,30 @@ describe Bitfields do
       OverwrittenUser.bitfields.should == {:bits=>{:seller_inherited=>1}}
     end
 
-    xit "knows inherited values when overwriting" do
-      OverwrittenUser.bitfield_column(:seller).should == :bits
+    it "knows inherited values when overwriting" do
+      pending do
+        OverwrittenUser.bitfield_column(:seller).should == :bits
+      end
     end
 
-    xit "knows inherited values without overwriting" do
-      InheritedUser.bitfield_column(:seller).should == :bits
+    it "knows inherited values without overwriting" do
+      pending do
+        InheritedUser.bitfield_column(:seller).should == :bits
+      end
+    end
+  end
+
+  describe 'initializers' do
+    it "sets defaults" do
+      InitializedUser.new.seller.should == true
+      InitializedUser.new.insane.should == false
+    end
+
+    it "can overwrite defaults in new" do
+      pending do
+        InitializedUser.new(:seller => false).seller.should == false
+        InitializedUser.new(:insane => true).insane.should == true
+      end
     end
   end
 end
