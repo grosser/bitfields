@@ -44,10 +44,16 @@ Delete the shop when a user is no longer a seller
 TIPS
 ====
  - [Upgrading] in version 0.2.2 the first field(when not given as hash) used bit 2 -> add a bogus field in first position
+ - [Defaults] afaik it is not possible to have some bits true by default (without monkeypatching AR/see [tests](https://github.com/grosser/bitfields/commit/2170dc546e2c4f1187089909a80e8602631d0796)) -> choose a good naming like `xxx_on` / `xxx_off` to use the default 'false'
  - Never do: "#{bitfield_sql(...)} AND #{bitfield_sql(...)}", merge both into one hash
  - bit_operator is faster in most cases, use :query_mode => :in_list sparingly
  - Standard mysql integer is 4 byte -> 32 bitfields
  - If you are lazy or bad at math you can also do `bitfields :bits, :foo, :bar, :baz`
+
+Query-mode Benchmark
+=========
+The `:query_mode => :in_list` is slower for most queries and scales mierably with the number of bits.<br/>
+*Stay with the default query-mode*. Only use :in_list if your edge-case shows better performance.
 
 ![performance](http://chart.apis.google.com/chart?chtt=bit-operator+vs+IN+--+with+index&chd=s:CEGIKNPRUW,DEHJLOQSVX,CFHKMPSYXZ,DHJMPSVYbe,DHLPRVZbfi,FKOUZeinsx,FLQWbglqw2,HNTZfkqw19,BDEGHJLMOP,BDEGIKLNOQ,BDFGIKLNPQ,BDFGILMNPR,BDFHJKMOQR,BDFHJLMOQS,BDFHJLNPRT,BDFHJLNPRT&chxt=x,y&chxl=0:|100K|200K|300K|400K|500K|600K|700K|800K|900K|1000K|1:|0|1441.671ms&cht=lc&chs=600x500&chdl=2bits+%28in%29|3bits+%28in%29|4bits+%28in%29|6bits+%28in%29|8bits+%28in%29|10bits+%28in%29|12bits+%28in%29|14bits+%28in%29|2bits+%28bit%29|3bits+%28bit%29|4bits+%28bit%29|6bits+%28bit%29|8bits+%28bit%29|10bits+%28bit%29|12bits+%28bit%29|14bits+%28bit%29&chco=0000ff,0000ee,0000dd,0000cc,0000bb,0000aa,000099,000088,ff0000,ee0000,dd0000,cc0000,bb0000,aa0000,990000,880000)
 
