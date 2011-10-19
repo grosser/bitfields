@@ -10,4 +10,4 @@ require 'timeout'
 require 'active_record'
 puts "Using ActiveRecord #{ActiveRecord::VERSION::STRING}"
 
-require 'spec/database'
+require './spec/database'
