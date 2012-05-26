@@ -23,7 +23,18 @@ class UserWithoutScopes < ActiveRecord::Base
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 end
 
+class UserWithoutSetBitfield < ActiveRecord::Base
+  set_table_name 'users'
+  include Bitfields
+end
+
 class InheritedUser < User
+end
+
+class GrandchildInheritedUser < InheritedUser
+end
+
+class InheritedUserWithoutSetBitfield < UserWithoutSetBitfield
 end
 
 class OverwrittenUser < User
@@ -66,7 +77,6 @@ class InitializedUser < User
     self.insane = false
   end
 end
-
 
 describe Bitfields do
   before do
@@ -364,9 +374,23 @@ describe Bitfields do
     end
 
     it "knows inherited values without overwriting" do
-      pending do
-        InheritedUser.bitfield_column(:seller).should == :bits
-      end
+      InheritedUser.bitfield_column(:seller).should == :bits
+    end
+
+    it "has inherited scopes" do
+      InheritedUser.should respond_to(:not_seller)
+    end
+
+    it "has inherited methods" do
+      InheritedUser.new.should respond_to(:seller?)
+    end
+
+    it "knows grandchild inherited values without overwriting" do
+      GrandchildInheritedUser.bitfield_column(:seller).should == :bits
+    end
+
+    it "inherits no bitfields for a user without bitfields set" do
+      InheritedUserWithoutSetBitfield.bitfields.should be_nil
     end
   end
 
