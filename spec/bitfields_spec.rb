@@ -34,6 +34,12 @@ end
 class GrandchildInheritedUser < InheritedUser
 end
 
+# other children should not disturb the inheritance
+class OtherInheritedUser < UserWithoutSetBitfield
+  set_table_name 'users'
+  bitfield :bits, 1 => :seller_inherited
+end
+
 class InheritedUserWithoutSetBitfield < UserWithoutSetBitfield
 end
 
