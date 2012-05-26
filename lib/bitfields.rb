@@ -9,7 +9,22 @@ module Bitfields
   def self.included(base)
     class << base
       attr_accessor :bitfields, :bitfield_options
+      
+      # This holds an array of all the args passed into bitfield
+      def bitfield_original_args
+        @bitfield_original_args||= []
+      end
+
+      def inherited(klass)
+        super
+        bitfield_original_args.each do |args|
+          klass.instance_eval do
+            extract_and_populate_bitfield_attributes *args
+          end
+        end
+      end
     end
+
     base.extend Bitfields::ClassMethods
   end
 
@@ -32,16 +47,7 @@ module Bitfields
 
   module ClassMethods
     def bitfield(column, *args)
-      # prepare ...
-      column = column.to_sym
-      options = (args.last.is_a?(Hash) ? args.pop.dup : {}) # since we will modify them...
-      args.each_with_index{|field,i| options[2**i] = field } # add fields given in normal args to options
-
-      # extract options
-      self.bitfields ||= {}
-      self.bitfield_options ||= {}
-      bitfields[column] = Bitfields.extract_bits(options)
-      bitfield_options[column] = options
+      options = extract_and_populate_bitfield_attributes(column, *args)
 
       # add instance methods and scopes
       bitfields[column].keys.each do |bit_name|
@@ -56,6 +62,24 @@ module Bitfields
       end
 
       include Bitfields::InstanceMethods
+    end
+
+    def extract_and_populate_bitfield_attributes(column, *args)
+      self.bitfield_original_args << ([column]+args)
+
+      # prepare ...
+      column = column.to_sym
+
+      # since we will modify them...
+      (args.last.is_a?(Hash) ? args.pop.dup : {}).tap do |options|
+        args.each_with_index{|field,i| options[2**i] = field } # add fields given in normal args to options
+
+        # extract options
+        self.bitfields ||= {}
+        self.bitfield_options ||= {}
+        bitfields[column] = Bitfields.extract_bits(options)
+        bitfield_options[column] = options
+      end
     end
 
     def bitfield_column(bit_name)
