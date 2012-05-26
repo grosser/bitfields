@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    bitfields (0.4.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -17,12 +22,7 @@ GEM
     bcrypt-ruby (2.1.4)
     builder (3.0.0)
     diff-lcs (1.1.2)
-    git (1.2.5)
     i18n (0.6.0)
-    jeweler (1.6.2)
-      bundler (~> 1.0)
-      git (>= 1.2.5)
-      rake
     multi_json (1.0.3)
     rake (0.9.2)
     rspec (2.6.0)
@@ -41,7 +41,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
-  jeweler
+  bitfields!
   rake
   rspec (~> 2)
   sqlite3
