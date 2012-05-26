@@ -65,6 +65,7 @@ Authors
 =======
 ### [Contributors](http://github.com/grosser/bitfields/contributors)
  - [Hellekin O. Wolf](https://github.com/hellekin)
+ - [John Wilkinson](https://github.com/jcwilk)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
