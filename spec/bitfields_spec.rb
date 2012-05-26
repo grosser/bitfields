@@ -367,10 +367,14 @@ describe Bitfields do
       OverwrittenUser.bitfields.should == {:bits=>{:seller_inherited=>1}}
     end
 
-    it "knows inherited values when overwriting" do
-      pending do
-        OverwrittenUser.bitfield_column(:seller).should == :bits
-      end
+    it "knows overwritten values when overwriting" do
+      OverwrittenUser.bitfield_column(:seller_inherited).should == :bits
+    end
+
+    it "does not know old values when overwriting" do
+      expect{
+        OverwrittenUser.bitfield_column(:seller)
+      }.to raise_error
     end
 
     it "knows inherited values without overwriting" do

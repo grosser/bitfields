@@ -10,17 +10,15 @@ module Bitfields
     class << base
       attr_accessor :bitfields, :bitfield_options
       
-      # This holds an array of all the args passed into bitfield
-      def bitfield_original_args
-        @bitfield_original_args||= []
+      # array of all the args passed into bitfield
+      def bitfield_args
+        @bitfield_args ||= []
       end
 
       def inherited(klass)
         super
-        bitfield_original_args.each do |args|
-          klass.instance_eval do
-            extract_and_populate_bitfield_attributes *args
-          end
+        bitfield_args.each do |args|
+          klass.send(:extract_and_populate_bitfield_attributes, *args)
         end
       end
     end
@@ -41,8 +39,11 @@ module Bitfields
 
   # AR 3+ -> :scope, below :named_scope
   def self.ar_scoping_method
-    return :scope if defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
-    :named_scope
+    if defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
+      :scope
+    else
+      :named_scope
+    end
   end
 
   module ClassMethods
@@ -54,6 +55,7 @@ module Bitfields
         define_method(bit_name){ bitfield_value(bit_name) }
         define_method("#{bit_name}?"){ bitfield_value(bit_name) }
         define_method("#{bit_name}="){|value| set_bitfield_value(bit_name, value) }
+
         if options[:scopes] != false
           scoping_method = Bitfields.ar_scoping_method
           send scoping_method, bit_name, :conditions => bitfield_sql(bit_name => true)
@@ -65,36 +67,33 @@ module Bitfields
     end
 
     def extract_and_populate_bitfield_attributes(column, *args)
-      self.bitfield_original_args << ([column]+args)
+      self.bitfield_args << ([column]+args)
 
-      # prepare ...
+      # prepare options
+      options = (args.last.is_a?(Hash) ? args.pop.dup : {}) # TODO does this change stored args ??
+      args.each_with_index{|field,i| options[2**i] = field } # add fields given in normal args to options
+
+      # set everything up
       column = column.to_sym
-
-      # since we will modify them...
-      (args.last.is_a?(Hash) ? args.pop.dup : {}).tap do |options|
-        args.each_with_index{|field,i| options[2**i] = field } # add fields given in normal args to options
-
-        # extract options
-        self.bitfields ||= {}
-        self.bitfield_options ||= {}
-        bitfields[column] = Bitfields.extract_bits(options)
-        bitfield_options[column] = options
-      end
+      self.bitfields ||= {}
+      self.bitfield_options ||= {}
+      bitfields[column] = Bitfields.extract_bits(options)
+      bitfield_options[column] = options
     end
 
     def bitfield_column(bit_name)
-      found = bitfields.detect{|c, bits| bits.keys.include?(bit_name.to_sym) }
+      found = bitfields.detect{|_, bits| bits.keys.include?(bit_name.to_sym) }
       raise "Unknown bitfield #{bit_name}" unless found
       found.first
     end
 
     def bitfield_sql(bit_values, options={})
-      bits = group_bits_by_column(bit_values).sort_by{|c,v| c.to_s }
+      bits = group_bits_by_column(bit_values).sort_by{|c,_| c.to_s }
       bits.map{|column, bit_values| bitfield_sql_by_column(column, bit_values, options) } * ' AND '
     end
 
     def set_bitfield_sql(bit_values)
-      bits = group_bits_by_column(bit_values).sort_by{|c,v| c.to_s }
+      bits = group_bits_by_column(bit_values).sort_by{|c,_| c.to_s }
       bits.map{|column, bit_values| set_bitfield_sql_by_column(column, bit_values) } * ', '
     end
 
@@ -146,13 +145,13 @@ module Bitfields
 
   module InstanceMethods
     def bitfield_values(column)
-      Hash[self.class.bitfields[column.to_sym].map{|bit_name, bit| [bit_name, bitfield_value(bit_name)]}]
+      Hash[self.class.bitfields[column.to_sym].map{|bit_name, _| [bit_name, bitfield_value(bit_name)]}]
     end
 
     private
 
     def bitfield_value(bit_name)
-      column, bit, current_value = bitfield_info(bit_name)
+      _, bit, current_value = bitfield_info(bit_name)
       current_value & bit != 0
     end
 
