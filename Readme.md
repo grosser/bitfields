@@ -1,15 +1,17 @@
 Save migrations and columns by storing multiple booleans in a single integer.<br/>
 e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,..)
 
-    class User < ActiveRecord::Base
-      include Bitfields
-      bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
-    end
+```ruby
+class User < ActiveRecord::Base
+  include Bitfields
+  bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
+end
 
-    user = User.new(:seller => true, :insane => true)
-    user.seller == true
-    user.stupid? == false
-    user.my_bits == 3
+user = User.new(:seller => true, :insane => true)
+user.seller == true
+user.stupid? == false
+user.my_bits == 3
+```
 
  - records changes `user.chamges == {:seller => [false, true]}`
  - adds scopes `User.seller.stupid.first` (deactivate with `bitfield ..., :scopes => false`)
@@ -27,19 +29,25 @@ Or as Rails plugin: ` rails plugin install git://github.com/grosser/bitfields.gi
 ### Migration
 ALWAYS set a default, bitfield queries will not work for NULL
 
-    t.integer :my_bits, :default => 0, :null => false
-    OR
-    add_column :users, :my_bits, :integer, :default => 0, :null => false
+```ruby
+t.integer :my_bits, :default => 0, :null => false
+# OR
+add_column :users, :my_bits, :integer, :default => 0, :null => false
+```
 
 Examples
 ========
 Update all users
 
-    User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
+```ruby
+User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane => true))
+```
 
 Delete the shop when a user is no longer a seller
 
-    before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
+```ruby
+before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
+```
 
 TIPS
 ====
