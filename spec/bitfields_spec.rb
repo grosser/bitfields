@@ -419,7 +419,7 @@ describe Bitfields do
   end
 
   describe "rspec matchers" do
-    subject { User }
+    subject { User.new }
 
     it { should have_a_bitfield :seller }
     it { should_not have_a_bitfield :pickle_eater }
