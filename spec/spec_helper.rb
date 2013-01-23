@@ -4,6 +4,7 @@ if ENV['VERSION']
   gem 'activesupport', ENV['VERSION']
 end
 $LOAD_PATH << 'lib'
+require 'bitfields/rspec'
 require 'bitfields'
 require 'timeout'
 

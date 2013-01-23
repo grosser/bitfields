@@ -93,7 +93,7 @@ describe Bitfields do
     it "parses them correctly" do
       User.bitfields.should == {:bits => {:seller => 1, :insane => 2, :stupid => 4}}
     end
-    
+
     it "is fast for huge number of bits" do
       bits = {}
       0.upto(20) do |bit|
@@ -416,5 +416,12 @@ describe Bitfields do
         InitializedUser.new(:insane => true).insane.should == true
       end
     end
+  end
+
+  describe "rspec matchers" do
+    subject { User }
+
+    it { should have_a_bitfield :seller }
+    it { should_not have_a_bitfield :pickle_eater }
   end
 end
