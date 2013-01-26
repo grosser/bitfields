@@ -93,5 +93,5 @@ Authors
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
 License: MIT<br/>
-[![Build Status](https://secure.travis-ci.org/grosser/bitfields.png)](http://travis-ci.org/grosser/bitfields)
+[![Build Status](https://travis-ci.org/grosser/bitfields.png)](https://travis-ci.org/grosser/bitfields)
 
