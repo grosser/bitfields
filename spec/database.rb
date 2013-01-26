@@ -7,6 +7,7 @@ ActiveRecord::Base.establish_connection(
 )
 
 # create tables
+ActiveRecord::Schema.verbose = false
 ActiveRecord::Schema.define(:version => 1) do
   create_table :users do |t|
     t.integer :bits, :default => 0, :null => false
