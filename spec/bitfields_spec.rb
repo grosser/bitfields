@@ -11,20 +11,20 @@ class UserWithBitfieldOptions < ActiveRecord::Base
 end
 
 class MultiBitUser < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
 end
 
 class UserWithoutScopes < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 end
 
 class UserWithoutSetBitfield < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
 end
 
@@ -36,7 +36,7 @@ end
 
 # other children should not disturb the inheritance
 class OtherInheritedUser < UserWithoutSetBitfield
-  set_table_name 'users'
+  self.table_name = 'users'
   bitfield :bits, 1 => :seller_inherited
 end
 
@@ -48,34 +48,34 @@ class OverwrittenUser < User
 end
 
 class BitOperatorMode < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
   bitfield :bits, 1 => :seller, 2 => :insane, :query_mode => :bit_operator
 end
 
 class WithoutThePowerOfTwo < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
   bitfield :bits, :seller, :insane, :stupid, :query_mode => :bit_operator
 end
 
 class WithoutThePowerOfTwoWithoutOptions < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
   bitfield :bits, :seller, :insane
 end
 
 class CheckRaise < ActiveRecord::Base
-  set_table_name 'users'
+  self.table_name = 'users'
   include Bitfields
 end
 
 class ManyBitsUser < User
-  set_table_name 'users'
+  self.table_name = 'users'
 end
 
 class InitializedUser < User
-  set_table_name 'users'
+  self.table_name = 'users'
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 
   after_initialize do
