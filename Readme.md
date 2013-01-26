@@ -23,8 +23,10 @@ user.my_bits == 3
 
 Install
 =======
-As Gem: ` sudo gem install bitfields `<br/>
-Or as Rails plugin: ` rails plugin install git://github.com/grosser/bitfields.git `
+
+```
+gem install bitfields
+```
 
 ### Migration
 ALWAYS set a default, bitfield queries will not work for NULL
