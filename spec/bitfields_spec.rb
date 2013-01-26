@@ -89,6 +89,14 @@ describe Bitfields do
     User.delete_all
   end
 
+  def pending_if(condition, &block)
+    if condition
+      pending(&block)
+    else
+      yield
+    end
+  end
+
   describe :bitfields do
     it "parses them correctly" do
       User.bitfields.should == {:bits => {:seller => 1, :insane => 2, :stupid => 4}}
@@ -406,12 +414,14 @@ describe Bitfields do
 
   describe 'initializers' do
     it "sets defaults" do
-      InitializedUser.new.seller.should == true
-      InitializedUser.new.insane.should == false
+      pending_if(ActiveRecord::VERSION::MAJOR == 2) do
+        InitializedUser.new.seller.should == true
+        InitializedUser.new.insane.should == false
+      end
     end
 
     it "can overwrite defaults in new" do
-      pending do
+      pending_if(ActiveRecord::VERSION::MAJOR != 2) do
         InitializedUser.new(:seller => false).seller.should == false
         InitializedUser.new(:insane => true).insane.should == true
       end
