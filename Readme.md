@@ -59,6 +59,7 @@ TIPS
  - bit_operator is faster in most cases, use :query_mode => :in_list sparingly
  - Standard mysql integer is 4 byte -> 32 bitfields
  - If you are lazy or bad at math you can also do `bitfields :bits, :foo, :bar, :baz`
+ - If you are want more readability and reduce clutter you can do `bitfields 2**0 => :foo, 2**1 => :bar, 2**32 => :baz`
 
 Query-mode Benchmark
 =========
