@@ -1,10 +1,10 @@
 PATH
   remote: /Users/mgrosser/code/tools/bitfields
   specs:
-    bitfields (0.4.1)
+    bitfields (0.4.2)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     activerecord (2.3.15)
       activesupport (= 2.3.15)
