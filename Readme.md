@@ -13,7 +13,7 @@ user.stupid? == false
 user.my_bits == 3
 ```
 
- - records changes `user.chamges == {:seller => [false, true]}`
+ - records changes `user.changes == {:seller => [false, true]}`
  - adds scopes `User.seller.stupid.first` (deactivate with `bitfield ..., :scopes => false`)
  - builds sql `User.bitfield_sql(:insane => true, :stupid => false) == '(users.my_bits & 3) = 1'`
  - builds index-using sql with `bitfield ... ,:query_mode => :in_list` and `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)'` (2 and 1+2), often slower than :bit_operator sql especially for high number of bits
