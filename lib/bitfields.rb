@@ -9,7 +9,7 @@ module Bitfields
   def self.included(base)
     class << base
       attr_accessor :bitfields, :bitfield_options, :bitfield_args
-      
+
       # all the args passed into .bitfield so children can initialize from parents
       def bitfield_args
         @bitfield_args ||= []
@@ -38,9 +38,13 @@ module Bitfields
     bitfields
   end
 
+  def self.ar_3?
+    defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
+  end
+
   # AR 3+ -> :scope, below :named_scope
   def self.ar_scoping_method
-    if defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
+    if self.ar_3?
       :scope
     else
       :named_scope
@@ -96,12 +100,22 @@ module Bitfields
 
         if options[:scopes] != false
           scoping_method = Bitfields.ar_scoping_method
-          send scoping_method, bit_name, :conditions => bitfield_sql(bit_name => true)
-          send scoping_method, "not_#{bit_name}", :conditions => bitfield_sql(bit_name => false)
+          send scoping_method, bit_name, bitfield_scope_options(bit_name => true)
+          send scoping_method, "not_#{bit_name}", bitfield_scope_options(bit_name => false)
         end
       end
 
       include Bitfields::InstanceMethods
+    end
+
+    def bitfield_scope_options(bit_values)
+      sql = bitfield_sql(bit_values)
+
+      if Bitfields.ar_3?
+        lambda { where(sql) }
+      else
+        {:conditions => sql}
+      end
     end
 
     def bitfield_sql_by_column(column, bit_values, options={})

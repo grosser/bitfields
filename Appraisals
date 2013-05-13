@@ -3,3 +3,7 @@
     gem "activerecord", "~> #{version}.0"
   end
 end
+
+appraise "activerecord_4.0" do
+  gem "activerecord", "~> 4.0.0.rc"
+end
