@@ -91,6 +91,7 @@ Authors
  - [Hellekin O. Wolf](https://github.com/hellekin)
  - [John Wilkinson](https://github.com/jcwilk)
  - [PeppyHeppy](https://github.com/peppyheppy)
+ - [kmcbride](https://github.com/kmcbride)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
