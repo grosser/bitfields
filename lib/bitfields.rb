@@ -44,7 +44,7 @@ module Bitfields
 
   # AR 3+ -> :scope, below :named_scope
   def self.ar_scoping_method
-    if self.ar_3?
+    if ar_3?
       :scope
     else
       :named_scope

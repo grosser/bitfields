@@ -248,7 +248,13 @@ describe Bitfields do
       u1 = MultiBitUser.create!(:seller => true, :one => true)
       u2 = MultiBitUser.create!(:seller => true, :one => false)
       u3 = MultiBitUser.create!(:seller => false, :one => false)
-      MultiBitUser.all(:conditions => MultiBitUser.bitfield_sql({:seller => true, :one => false}, :query_mode => :in_list)).should == [u2]
+      conditions = MultiBitUser.bitfield_sql({:seller => true, :one => false}, :query_mode => :in_list)
+      result = if Bitfields.ar_3?
+        MultiBitUser.where(conditions)
+      else
+        MultiBitUser.all(:conditions => conditions)
+      end
+      result.should == [u2]
     end
 
     describe 'with bit operator mode' do
@@ -264,7 +270,14 @@ describe Bitfields do
         u1 = BitOperatorMode.create!(:seller => true, :insane => true)
         u2 = BitOperatorMode.create!(:seller => true, :insane => false)
         u3 = BitOperatorMode.create!(:seller => false, :insane => false)
-        BitOperatorMode.all(:conditions => MultiBitUser.bitfield_sql(:seller => true, :insane => false)).should == [u2]
+
+        conditions = MultiBitUser.bitfield_sql(:seller => true, :insane => false)
+        result = if Bitfields.ar_3?
+          BitOperatorMode.where(conditions)
+        else
+          BitOperatorMode.all(:conditions => conditions)
+        end
+        result.should == [u2]
       end
     end
 
