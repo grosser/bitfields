@@ -13,7 +13,7 @@ user.stupid? == false
 user.my_bits == 3
 ```
 
- - records changes `user.changes == {:seller => [false, true]}`
+ - records bitfield_changes `user.bitfield_changes == {:seller => [false, true]}`
  - adds scopes `User.seller.stupid.first` (deactivate with `bitfield ..., :scopes => false`)
  - builds sql `User.bitfield_sql(:insane => true, :stupid => false) == '(users.my_bits & 3) = 1'`
  - builds index-using sql with `bitfield ... ,:query_mode => :in_list` and `User.bitfield_sql(:insane => true, :stupid => false) == 'users.my_bits IN (2, 3)'` (2 and 1+2), often slower than :bit_operator sql especially for high number of bits
@@ -48,7 +48,7 @@ User.seller.not_stupid.update_all(User.set_bitfield_sql(:seller => true, :insane
 Delete the shop when a user is no longer a seller
 
 ```ruby
-before_save :delete_shop, :if => lambda{|u| u.changes['seller'] == [true, false]}
+before_save :delete_shop, :if => lambda{|u| u.bitfield_changes['seller'] == [true, false]}
 ```
 
 TIPS
