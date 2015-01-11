@@ -12,3 +12,8 @@ require 'active_record'
 puts "Using ActiveRecord #{ActiveRecord::VERSION::STRING}"
 
 require File.expand_path('../database', __FILE__)
+
+RSpec.configure do |config|
+  config.expect_with(:rspec) { |c| c.syntax = :should }
+  config.mock_with(:rspec) { |c| c.syntax = :should }
+end

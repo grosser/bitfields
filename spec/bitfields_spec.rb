@@ -391,9 +391,9 @@ describe Bitfields do
     end
 
     it "does not know old values when overwriting" do
-      expect{
+      -> {
         OverwrittenUser.bitfield_column(:seller)
-      }.to raise_error
+      }.should raise_error
     end
 
     it "knows inherited values without overwriting" do

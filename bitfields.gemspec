@@ -12,6 +12,6 @@ Gem::Specification.new name, Bitfields::VERSION do |s|
   s.add_development_dependency 'activerecord'
   s.add_development_dependency 'sqlite3'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec', '~>2'
+  s.add_development_dependency 'rspec', '~>3'
   s.add_development_dependency 'bump'
 end

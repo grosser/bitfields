@@ -6,11 +6,11 @@ RSpec::Matchers.define :have_a_bitfield do |field|
     klass.respond_to?("#{field}=")
   end
 
-  failure_message_for_should do |klass|
+  failure_message do |klass|
     "expected #{expected.join} to be a bitfield property defined on #{klass}"
   end
 
-  failure_message_for_should_not do |klass|
+  failure_message_when_negated do |klass|
     "expected #{expected.join} to NOT be a bitfield property defined on #{klass}"
   end
 
