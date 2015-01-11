@@ -193,23 +193,15 @@ describe Bitfields do
       user.bits.should == 7
     end
 
-    describe 'changes' do
+    describe '#bitfield_changes' do
       it "has no changes by defaut" do
-        User.new.changes.should == {}
+        User.new.bitfield_changes.should == {}
       end
 
       it "records a change when setting" do
-        User.new(:seller => true).changes.should == {'seller' => [false, true], 'bits' => [0,1]}
-      end
-
-      it "records a change when unsetting" do
-        u = User.create!(:seller => true)
-        u.seller = false
-        u.changes.should == {'seller' => [true, false], 'bits' => [1,0]}
-      end
-
-      it "does not track duplicate changes" do
-        User.create!(:seller => false).changes.should == {}
+        u = User.new(:seller => true)
+        u.changes.should == {'bits' => [0,1]}
+        u.bitfield_changes.should == {'seller' => [false, true]}
       end
     end
   end
@@ -241,12 +233,7 @@ describe Bitfields do
       u2 = MultiBitUser.create!(:seller => true, :one => false)
       u3 = MultiBitUser.create!(:seller => false, :one => false)
       conditions = MultiBitUser.bitfield_sql({:seller => true, :one => false}, :query_mode => :in_list)
-      result = if Bitfields.ar_3?
-        MultiBitUser.where(conditions)
-      else
-        MultiBitUser.all(:conditions => conditions)
-      end
-      result.should == [u2]
+      MultiBitUser.where(conditions).should == [u2]
     end
 
     describe 'with bit operator mode' do
@@ -264,12 +251,7 @@ describe Bitfields do
         u3 = BitOperatorMode.create!(:seller => false, :insane => false)
 
         conditions = MultiBitUser.bitfield_sql(:seller => true, :insane => false)
-        result = if Bitfields.ar_3?
-          BitOperatorMode.where(conditions)
-        else
-          BitOperatorMode.all(:conditions => conditions)
-        end
-        result.should == [u2]
+        BitOperatorMode.where(conditions).should == [u2]
       end
     end
 

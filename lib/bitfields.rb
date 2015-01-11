@@ -147,6 +147,13 @@ module Bitfields
       Hash[self.class.bitfields[column.to_sym].map{|bit_name, _| [bit_name, bitfield_value(bit_name)]}]
     end
 
+    def bitfield_changes
+      self.class.bitfields.values.flat_map(&:keys).each_with_object({}) do |bit, changes|
+        old, current = bitfield_value_was(bit), bitfield_value(bit)
+        changes[bit.to_s] = [old, current] unless old == current
+      end
+    end
+
     private
 
     def bitfield_value(bit_name)
@@ -154,15 +161,16 @@ module Bitfields
       current_value & bit != 0
     end
 
+    def bitfield_value_was(bit_name)
+      column, bit, _ = bitfield_info(bit_name)
+      send("#{column}_was") & bit != 0
+    end
+
     def set_bitfield_value(bit_name, value)
       column, bit, current_value = bitfield_info(bit_name)
       new_value = TRUE_VALUES.include?(value)
       old_value = bitfield_value(bit_name)
       return if new_value == old_value
-
-      if defined? changed_attributes
-        send(:changed_attributes).merge!(bit_name.to_s => old_value)
-      end
 
       # 8 + 1 == 9 // 8 + 8 == 8 // 1 - 8 == 1 // 8 - 8 == 0
       new_bits = if new_value then current_value | bit else (current_value | bit) - bit end
