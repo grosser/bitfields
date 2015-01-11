@@ -84,6 +84,12 @@ module Bitfields
         define_method(bit_name) { bitfield_value(bit_name) }
         define_method("#{bit_name}?") { bitfield_value(bit_name) }
         define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
+        define_method("#{bit_name}_was") { bitfield_value_was(bit_name) }
+        define_method("#{bit_name}_changed?") { bitfield_value_was(bit_name) != bitfield_value(bit_name) }
+        define_method("#{bit_name}_change") do
+          values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
+          values unless values[0] == values[1]
+        end
 
         if options[:scopes] != false
           scope bit_name, bitfield_scope_options(bit_name => true)

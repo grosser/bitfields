@@ -193,16 +193,42 @@ describe Bitfields do
       user.bits.should == 7
     end
 
-    describe '#bitfield_changes' do
-      it "has no changes by defaut" do
-        User.new.bitfield_changes.should == {}
-      end
+    it "has _was" do
+      user = User.new
+      user.seller_was.should == false
+      user.seller = true
+      user.save!
+      user.seller_was.should == true
+    end
 
-      it "records a change when setting" do
-        u = User.new(:seller => true)
-        u.changes.should == {'bits' => [0,1]}
-        u.bitfield_changes.should == {'seller' => [false, true]}
-      end
+    it "has _changed?" do
+      user = User.new
+      user.seller_changed?.should == false
+      user.seller = true
+      user.seller_changed?.should == true
+      user.save!
+      user.seller_changed?.should == false
+    end
+
+    it "has _change" do
+      user = User.new
+      user.seller_change.should == nil
+      user.seller = true
+      user.seller_change.should == [false, true]
+      user.save!
+      user.seller_change.should == nil
+    end
+  end
+
+  describe '#bitfield_changes' do
+    it "has no changes by defaut" do
+      User.new.bitfield_changes.should == {}
+    end
+
+    it "records a change when setting" do
+      u = User.new(:seller => true)
+      u.changes.should == {'bits' => [0,1]}
+      u.bitfield_changes.should == {'seller' => [false, true]}
     end
   end
 
