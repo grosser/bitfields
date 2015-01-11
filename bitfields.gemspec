@@ -8,6 +8,7 @@ Gem::Specification.new name, Bitfields::VERSION do |s|
   s.homepage = "https://github.com/grosser/#{name}"
   s.files = Dir["{lib/**/*.rb,Readme.md}"]
   s.license = 'MIT'
+  s.required_ruby_version = ">= 1.9.3"
   s.add_development_dependency 'wwtd'
   s.add_development_dependency 'activerecord'
   s.add_development_dependency 'sqlite3'

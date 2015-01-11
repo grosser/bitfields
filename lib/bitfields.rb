@@ -38,19 +38,6 @@ module Bitfields
     bitfields
   end
 
-  def self.ar_3?
-    defined?(ActiveRecord::VERSION::MAJOR) and ActiveRecord::VERSION::MAJOR >= 3
-  end
-
-  # AR 3+ -> :scope, below :named_scope
-  def self.ar_scoping_method
-    if ar_3?
-      :scope
-    else
-      :named_scope
-    end
-  end
-
   module ClassMethods
     def bitfield(column, *args)
       column = column.to_sym
@@ -99,9 +86,8 @@ module Bitfields
         define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
 
         if options[:scopes] != false
-          scoping_method = Bitfields.ar_scoping_method
-          send scoping_method, bit_name, bitfield_scope_options(bit_name => true)
-          send scoping_method, "not_#{bit_name}", bitfield_scope_options(bit_name => false)
+          scope bit_name, bitfield_scope_options(bit_name => true)
+          scope "not_#{bit_name}", bitfield_scope_options(bit_name => false)
         end
       end
 
@@ -109,13 +95,7 @@ module Bitfields
     end
 
     def bitfield_scope_options(bit_values)
-      sql = bitfield_sql(bit_values)
-
-      if Bitfields.ar_3?
-        lambda { where(sql) }
-      else
-        {:conditions => sql}
-      end
+      -> { where(bitfield_sql(bit_values)) }
     end
 
     def bitfield_sql_by_column(column, bit_values, options={})
