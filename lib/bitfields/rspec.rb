@@ -17,5 +17,4 @@ RSpec::Matchers.define :have_a_bitfield do |field|
   description do
     "be a bitfield on #{expected}"
   end
-
 end
