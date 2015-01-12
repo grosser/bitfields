@@ -74,16 +74,6 @@ class ManyBitsUser < User
   self.table_name = 'users'
 end
 
-class InitializedUser < User
-  self.table_name = 'users'
-  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
-
-  after_initialize do
-    self.seller = true
-    self.insane = false
-  end
-end
-
 describe Bitfields do
   before do
     User.delete_all
@@ -422,19 +412,6 @@ describe Bitfields do
 
     it "inherits no bitfields for a user without bitfields set" do
       InheritedUserWithoutSetBitfield.bitfields.should be_nil
-    end
-  end
-
-  describe 'initializers' do
-    it "sets defaults" do
-      InitializedUser.new.seller.should == true
-      InitializedUser.new.insane.should == false
-    end
-
-    it "can overwrite defaults in new" do
-      pending
-      InitializedUser.new(:seller => false).seller.should == false
-      InitializedUser.new(:insane => true).insane.should == true
     end
   end
 
