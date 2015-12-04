@@ -299,6 +299,20 @@ describe Bitfields do
         end
       }.should raise_error(Bitfields::DuplicateBitNameError)
     end
+
+    it "checks that bitfields are powers of two" do
+      lambda{
+        CheckRaise.class_eval do
+          bitfield :foo, 1 => :bar, 3 => :baz, 4 => :bar
+        end
+      }.should raise_error("3 is not a power of 2 !!")
+
+      lambda{
+        CheckRaise.class_eval do
+          bitfield :foo, 1 => :bar, -1 => :baz, 4 => :bar
+        end
+      }.should raise_error("-1 is not a power of 2 !!")
+    end
   end
 
   describe :set_bitfield_sql do
