@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bitfields (0.5.2)
+    bitfields (0.6.0)
 
 GEM
   remote: https://rubygems.org/
@@ -56,3 +56,6 @@ DEPENDENCIES
   rspec (~> 3)
   sqlite3
   wwtd
+
+BUNDLED WITH
+   1.10.6
