@@ -30,7 +30,7 @@ module Bitfields
   def self.extract_bits(options)
     bitfields = {}
     options.keys.select{|key| key.is_a?(Numeric) }.each do |bit|
-      raise "#{bit} is not a power of 2 !!" unless bit.to_s(2).scan('1').size == 1
+      raise "#{bit} is not a power of 2 !!" unless bit & (bit - 1) == 0
       bit_name = options.delete(bit).to_sym
       raise DuplicateBitNameError if bitfields.include?(bit_name)
       bitfields[bit_name] = bit
