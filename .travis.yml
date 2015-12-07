@@ -3,6 +3,8 @@ bundler_args: ""
 rvm:
   - 1.9.3
   - 2.0.0
+  - 2.1.6
+  - 2.2.3
 gemfile:
   - gemfiles/activerecord_3.2.gemfile
   - gemfiles/activerecord_4.0.gemfile
