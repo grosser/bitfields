@@ -51,6 +51,13 @@ Delete the shop when a user is no longer a seller
 before_save :delete_shop, if: -> { |u| u.seller_change == [true, false]}
 ```
 
+List fields and their respective values
+
+```ruby
+user = User.new(insane: true)
+user.bitfield_values(:my_bits) == { seller: false, insane: true, stupid: false } 
+```
+
 TIPS
 ====
  - [Upgrading] in version 0.2.2 the first field(when not given as hash) used bit 2 -> add a bogus field in first position
