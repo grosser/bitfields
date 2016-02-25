@@ -55,7 +55,7 @@ List fields and their respective values
 
 ```ruby
 user = User.new(insane: true)
-user.bitfield_values(:my_bits) == { seller: false, insane: true, stupid: false } 
+user.bitfield_values(:my_bits) == { seller: false, insane: true, stupid: false }
 ```
 
 TIPS
@@ -99,6 +99,7 @@ Authors
  - [John Wilkinson](https://github.com/jcwilk)
  - [PeppyHeppy](https://github.com/peppyheppy)
  - [kmcbride](https://github.com/kmcbride)
+ - [Justin Aiken](https://github.com/JustinAiken)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
