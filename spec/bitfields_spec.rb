@@ -208,6 +208,17 @@ describe Bitfields do
       user.save!
       user.seller_change.should == nil
     end
+
+    it "has _became_true?" do
+      user = User.new
+      user.seller_became_true?.should == false
+      user.seller = true
+      user.seller_became_true?.should == true
+      user.save!
+      user.seller_became_true?.should == false
+      user.seller = true
+      user.seller_became_true?.should == false
+    end
   end
 
   describe '#bitfield_changes' do
