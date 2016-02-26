@@ -1,7 +1,6 @@
 PATH
   remote: ../
   specs:
-    bitfields (0.5.0)
 
 GEM
   remote: https://rubygems.org/
