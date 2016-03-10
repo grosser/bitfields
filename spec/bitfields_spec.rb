@@ -416,7 +416,7 @@ describe Bitfields do
     it "does not know old values when overwriting" do
       -> {
         OverwrittenUser.bitfield_column(:seller)
-      }.should raise_error
+      }.should raise_error(RuntimeError)
     end
 
     it "knows inherited values without overwriting" do
