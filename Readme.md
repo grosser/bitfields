@@ -1,5 +1,5 @@
 Save migrations and columns by storing multiple booleans in a single integer.<br/>
-e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,..)
+e.g. false-false-true = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,..)
 
 ```ruby
 class User < ActiveRecord::Base
