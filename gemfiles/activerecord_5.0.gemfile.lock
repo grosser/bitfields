@@ -1,5 +1,5 @@
 PATH
-  remote: .
+  remote: ..
   specs:
     bitfields (0.7.0)
 
@@ -47,7 +47,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
+  activerecord (~> 5.0.0)
   bitfields!
   bump
   rake
