@@ -4,22 +4,22 @@ e.g. true-false-false = 1, false-true-false = 2,  true-false-true = 5 (1,2,4,8,.
 ```ruby
 class User < ActiveRecord::Base
   include Bitfields
-  bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :stupid
+  bitfield :my_bits, 1 => :seller, 2 => :insane, 4 => :sensible
 end
 
-user = User.new(foo: true, insane: true)
-user.seller == true
-user.stupid? == false
-user.my_bits == 3
+user = User.new(seller: true, insane: true)
+user.seller # => true
+user.sensible? # => false
+user.my_bits # => 3
 ```
 
- - records bitfield_changes `user.bitfield_changes == {foo: [false, true]}` (also `foo_was` / `foo_change` / `foo_changed?` / `foo_became_true?`)
- - adds scopes `User.foo.stupid.first` (deactivate with `bitfield ..., scopes: false`)
- - builds sql `User.bitfield_sql(insane: true, stupid: false) == '(users.my_bits & 3) = 1'`
- - builds index-using sql with `bitfield ... , query_mode: :in_list` and `User.bitfield_sql(insane: true, stupid: false) == 'users.my_bits IN (2, 3)'` (2 and 1+2), often slower than :bit_operator sql especially for high number of bits
- - builds update sql `User.set_bitfield_sql(insane: true, stupid: false) == 'my_bits = (my_bits | 6) - 4'`
+ - records bitfield_changes `user.bitfield_changes # => {"seller" => [false, true], "insane" => [false, true]}` (also `seller_was` / `seller_change` / `seller_changed?` / `seller_became_true?`)
+ - adds scopes `User.seller.sensible.first` (deactivate with `bitfield ..., scopes: false`)
+ - builds sql `User.bitfield_sql(insane: true, sensible: false) # => '(users.my_bits & 6) = 1'`
+ - builds index-using sql with `bitfield ... , query_mode: :in_list` and `User.bitfield_sql(insane: true, sensible: false) # => 'users.my_bits IN (2, 3)'` (2 and 1+2) often slower than :bit_operator sql especially for high number of bits
+ - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
- - gives access to bits `User.bitfields[:my_bits][:stupid] == 4`
+ - gives access to bits `User.bitfields[:my_bits][:sensible] # => 4`
 
 Install
 =======
@@ -42,7 +42,7 @@ Examples
 Update all users
 
 ```ruby
-User.seller.not_stupid.update_all(User.set_bitfield_sql(seller: true, insane: true))
+User.seller.not_sensible.update_all(User.set_bitfield_sql(seller: true, insane: true))
 ```
 
 Delete the shop when a user is no longer a seller
@@ -55,7 +55,7 @@ List fields and their respective values
 
 ```ruby
 user = User.new(insane: true)
-user.bitfield_values(:my_bits) == { seller: false, insane: true, stupid: false }
+user.bitfield_values(:my_bits) # => { seller: false, insane: true, sensible: false }
 ```
 
 TIPS
