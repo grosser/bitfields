@@ -10,6 +10,12 @@ class UserWithBitfieldOptions < ActiveRecord::Base
   bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :scopes => false
 end
 
+class UserWithInstanceOptions < ActiveRecord::Base
+  self.table_name = 'users'
+  include Bitfields
+  bitfield :bits, 1 => :seller, 2 => :insane, 4 => :stupid, :added_instance_methods => false
+end
+
 class MultiBitUser < ActiveRecord::Base
   self.table_name = 'users'
   include Bitfields
@@ -103,6 +109,7 @@ describe Bitfields do
 
     it "parses them correctly when set" do
       UserWithBitfieldOptions.bitfield_options.should == {:bits => {:scopes => false}}
+      UserWithInstanceOptions.bitfield_options.should == {:bits => {:added_instance_methods => false}}
     end
   end
 
@@ -218,6 +225,20 @@ describe Bitfields do
       user.seller_became_true?.should == false
       user.seller = true
       user.seller_became_true?.should == false
+    end
+
+    context "when :added_instance_methods is false" do
+      %i{
+        seller seller? seller= seller_was seller_changed? seller_change seller_became_true?
+      }.each do |meth|
+        describe "method #{meth} is not generated" do
+          UserWithInstanceOptions.new.respond_to?(meth).should == false
+        end
+      end
+    end
+
+    it "does still have the main bitfield method" do
+      UserWithInstanceOptions.new.bits.should eq 0
     end
   end
 
