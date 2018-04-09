@@ -2,20 +2,20 @@ cache: bundler
 sudo: false
 matrix:
   fast_finish: true
-  include:
-  - rvm: 2.4.1
-    gemfile: gemfiles/activerecord_5.0.gemfile
-  - rvm: 2.4.1
-    gemfile: gemfiles/activerecord_5.1.gemfile
+  exclude:
+  - rvm: 2.4
+    gemfile: gemfiles/activerecord_3.2.gemfile
+  - rvm: 2.5
+    gemfile: gemfiles/activerecord_3.2.gemfile
 branches:
   only: master
 rvm:
-  - 2.0.0
-  - 2.1.6
-  - 2.2.3
+  - 2.2
+  - 2.3
+  - 2.4
+  - 2.5
+before_install: gem install bundler --no-ri --no-rdoc
 gemfile:
   - gemfiles/activerecord_3.2.gemfile
-  - gemfiles/activerecord_4.0.gemfile
-  - gemfiles/activerecord_4.1.gemfile
   - gemfiles/activerecord_4.2.gemfile
 script: bundle exec rake spec
