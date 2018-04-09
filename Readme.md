@@ -101,6 +101,7 @@ Authors
  - [PeppyHeppy](https://github.com/peppyheppy)
  - [kmcbride](https://github.com/kmcbride)
  - [Justin Aiken](https://github.com/JustinAiken)
+ - [szTheory](https://github.com/szTheory)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
