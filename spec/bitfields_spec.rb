@@ -139,7 +139,7 @@ describe Bitfields do
         user = DuplicateBitUser.new
         user.bitfield_values(:bits).should == {:foo=>false, :bar=>false, :biz=>false}
         user.bitfield_values(:more_bits).should == {:foo=>false, :bar=>false, :biz=>false}
-        user.update bits: 15
+        user.bits = 15
         user.bitfield_values(:bits).should == {:foo=>true, :bar=>true, :biz=>true}
         user.bitfield_values(:more_bits).should == {:foo=>false, :bar=>false, :biz=>false}
       end
