@@ -48,8 +48,11 @@ module Bitfields
       add_bitfield_methods column, options
     end
 
-    def bitfield_column(bit_name)
-      found = bitfields.detect{|_, bits| bits.keys.include?(bit_name.to_sym) }
+    def bitfield_column(bit_name, column_name: nil)
+      found = bitfields.detect do |col, bits|
+        bits.keys.include?(bit_name.to_sym) &&
+        (column_name == nil || column_name.to_sym == col)
+      end
       raise "Unknown bitfield #{bit_name}" unless found
       found.first
     end
@@ -156,7 +159,7 @@ module Bitfields
 
   module InstanceMethods
     def bitfield_values(column)
-      Hash[self.class.bitfields[column.to_sym].map{|bit_name, _| [bit_name, bitfield_value(bit_name)]}]
+      Hash[self.class.bitfields[column.to_sym].map{|bit_name, _| [bit_name, bitfield_value(bit_name, column_name: column)]}]
     end
 
     def bitfield_changes
@@ -168,8 +171,8 @@ module Bitfields
 
     private
 
-    def bitfield_value(bit_name)
-      _, bit, current_value = bitfield_info(bit_name)
+    def bitfield_value(bit_name, column_name: nil)
+      _, bit, current_value = bitfield_info(bit_name, column_name: column_name)
       current_value & bit != 0
     end
 
@@ -189,8 +192,8 @@ module Bitfields
       send("#{column}=", new_bits)
     end
 
-    def bitfield_info(bit_name)
-      column = self.class.bitfield_column(bit_name)
+    def bitfield_info(bit_name, column_name: nil)
+      column = self.class.bitfield_column(bit_name, column_name: column_name)
       [
         column,
         self.class.bitfields[column][bit_name], # bit
