@@ -23,6 +23,13 @@ class MultiBitUser < ActiveRecord::Base
   bitfield :more_bits, 1 => :one, 2 => :two, 4 => :four
 end
 
+class DuplicateBitUser < ActiveRecord::Base
+  self.table_name = 'users'
+  include Bitfields
+  bitfield :bits, 1 => :foo, 2 => :bar, 4 => :biz
+  bitfield :more_bits, 1 => :foo, 2 => :bar, 4 => :biz
+end
+
 class UserWithoutScopes < ActiveRecord::Base
   self.table_name = 'users'
   include Bitfields
@@ -125,6 +132,17 @@ describe Bitfields do
     it "contains all bits with values" do
       User.new.bitfield_values(:bits).should == {:insane=>false, :stupid=>false, :seller=>false}
       User.new(:bits => 15).bitfield_values(:bits).should == {:insane=>true, :stupid=>true, :seller=>true}
+    end
+
+    context "with multiple duplicate-named fields" do
+      it "works as expected" do
+        user = DuplicateBitUser.new
+        user.bitfield_values(:bits).should == {:foo=>false, :bar=>false, :biz=>false}
+        user.bitfield_values(:more_bits).should == {:foo=>false, :bar=>false, :biz=>false}
+        user.update bits: 15
+        user.bitfield_values(:bits).should == {:foo=>true, :bar=>true, :biz=>true}
+        user.bitfield_values(:more_bits).should == {:foo=>false, :bar=>false, :biz=>false}
+      end
     end
   end
 
