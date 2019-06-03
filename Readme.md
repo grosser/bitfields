@@ -103,6 +103,7 @@ Authors
  - [kmcbride](https://github.com/kmcbride)
  - [Justin Aiken](https://github.com/JustinAiken)
  - [szTheory](https://github.com/szTheory)
+ - [Reed G. Law](https://github.com/reedlaw)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
