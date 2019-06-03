@@ -303,6 +303,21 @@ describe Bitfields do
       end
     end
 
+    describe 'with OR' do
+      it "generates sql for each bit" do
+        User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or).should == '(users.bits & 1) = 1 OR (users.bits & 2) = 2'
+      end
+
+      it "generates working sql" do
+        u1 = User.create!(:seller => true, :insane => true)
+        u2 = User.create!(:seller => true, :insane => false)
+        u3 = User.create!(:seller => false, :insane => false)
+
+        conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2]
+      end
+    end
+
     describe 'without the power of two' do
       it 'uses correct bits' do
         u = WithoutThePowerOfTwo.create!(:seller => false, :insane => true, :stupid => true)
