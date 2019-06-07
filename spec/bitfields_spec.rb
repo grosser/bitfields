@@ -227,6 +227,17 @@ describe Bitfields do
       user.seller_became_true?.should == false
     end
 
+    it "has _became_false?" do
+      user = User.new
+      user.seller_became_false?.should == false
+      user.seller = true
+      user.seller_became_false?.should == false
+      user.save!
+      user.seller_became_false?.should == false
+      user.seller = false
+      user.seller_became_false?.should == true
+    end
+
     context "when :added_instance_methods is false" do
       %i{
         seller seller? seller= seller_was seller_changed? seller_change seller_became_true?
