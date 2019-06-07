@@ -95,6 +95,10 @@ module Bitfields
             value = bitfield_value(bit_name)
             value && bitfield_value_was(bit_name) != value
           end
+          define_method("#{bit_name}_became_false?") do
+            value = bitfield_value(bit_name)
+            !value && bitfield_value_was(bit_name) != value
+          end
         end
 
         if options[:scopes] != false
