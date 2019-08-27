@@ -80,6 +80,34 @@ class ManyBitsUser < User
   self.table_name = 'users'
 end
 
+class AvoidCallbackDeprecation < ActiveRecord::Base
+  self.table_name = 'users'
+  include Bitfields
+
+  bitfield :bits, 1 => :before_bit, 2 => :after_bit
+
+  before_save :before_save_callback, if: :before_bit_has_changed?
+  after_save :after_save_callback, if: :after_bit_has_changed?
+
+  def before_bit_has_changed?
+    before_bit_changed?
+  end
+
+  def after_bit_has_changed?
+    after_bit_changed?
+  end
+
+  def before_save_callback
+    before_bit_was
+    true
+  end
+
+  def after_save_callback
+    after_bit_was
+    true
+  end
+end
+
 describe Bitfields do
   before do
     User.delete_all
@@ -190,12 +218,30 @@ describe Bitfields do
       user.bits.should == 7
     end
 
-    it "has _was" do
-      user = User.new
-      user.seller_was.should == false
-      user.seller = true
-      user.save!
-      user.seller_was.should == true
+    context "_was method" do
+      it "has _was" do
+        user = User.new
+        user.seller_was.should == false
+        user.seller = true
+        user.save!
+        user.seller_was.should == true
+      end
+
+      context "when called in a before_save" do
+        it "should not raise on deprecations" do
+          model = AvoidCallbackDeprecation.new
+          model.before_bit = true
+          model.save!
+        end
+      end
+
+      context "when called in an after_save" do
+        it "should not raise on deprecations" do
+          model = AvoidCallbackDeprecation.new
+          model.after_bit = true
+          model.save!
+        end
+      end
     end
 
     it "has _changed?" do
