@@ -254,7 +254,7 @@ describe Bitfields do
   end
 
   describe '#bitfield_changes' do
-    it "has no changes by defaut" do
+    it "has no changes by default" do
       User.new.bitfield_changes.should == {}
     end
 
