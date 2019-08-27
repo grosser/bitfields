@@ -240,7 +240,7 @@ describe Bitfields do
 
     context "when :added_instance_methods is false" do
       %i{
-        seller seller? seller= seller_was seller_changed? seller_change seller_became_true?
+        seller seller? seller= seller_was seller_changed? seller_change seller_became_true? seller_became_false?
       }.each do |meth|
         describe "method #{meth} is not generated" do
           UserWithInstanceOptions.new.respond_to?(meth).should == false
