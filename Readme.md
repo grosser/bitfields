@@ -90,6 +90,38 @@ describe User do
 end
 ````
 
+Introduced a shell script to `bundle install` and run specific versions of the spec suite for a given ActiveRecord version.
+
+````bash
+> sh specs_for_version.sh 5.1
+# Running rspec for ActiveRecord 5.1
+...
+````
+
+````bash
+> sh specs_for_version.sh 5.0 5.1 5.2
+# Running rspec for ActiveRecord 5.0
+...
+# Running rspec for ActiveRecord 5.1
+...
+# Running rspec for ActiveRecord 5.2
+...
+````
+
+Passing no arguments will result in running all ActiveRecord versions (as defined in the `/gemfiles` directory).
+
+````bash
+> sh specs_for_version.sh
+# Running rspec for ActiveRecord 4.2
+...
+# Running rspec for ActiveRecord 5.0
+...
+# Running rspec for ActiveRecord 5.1
+...
+# Running rspec for ActiveRecord 5.2
+...
+````
+
 TODO
 ====
  - convenient named scope `User.with_bitfields(xxx: true, yyy: false)`
