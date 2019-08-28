@@ -6,7 +6,7 @@ function run_rspec () {
   echo "\n"
 
   BUNDLE_GEMFILE=gemfiles/activerecord_$activerecord_version.gemfile bundle install &&
-  BUNDLE_GEMFILE=gemfiles/activerecord_$activerecord_version.gemfile bundle exec rspec
+  BUNDLE_GEMFILE=gemfiles/activerecord_$activerecord_version.gemfile bundle exec rspec spec/
 }
 
 if [ $# -eq 0 ]
