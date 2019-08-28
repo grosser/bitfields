@@ -1,3 +1,0 @@
-#!/bin/bash
-
-BUNDLE_GEMFILE=gemfiles/activerecord_$1.gemfile bundle install && BUNDLE_GEMFILE=gemfiles/activerecord_$1.gemfile bundle exec rspec
