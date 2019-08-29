@@ -6,6 +6,10 @@ module Bitfields
   TRUE_VALUES = [true, 1, '1', 't', 'T', 'true', 'TRUE'] # taken from ActiveRecord::ConnectionAdapters::Column
   class DuplicateBitNameError < ArgumentError; end
 
+  def self.active_record_5_1_or_above?
+    ActiveRecord.gem_version >= Gem::Version.new("5.1")
+  end
+
   def self.included(base)
     class << base
       attr_accessor :bitfields, :bitfield_options, :bitfield_args
@@ -84,20 +88,27 @@ module Bitfields
         if options[:added_instance_methods] != false
           define_method(bit_name) { bitfield_value(bit_name) }
           define_method("#{bit_name}?") { bitfield_value(bit_name) }
-          define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
-          define_method("#{bit_name}_was") { bitfield_value_was(bit_name) }
-          define_method("#{bit_name}_changed?") { bitfield_value_was(bit_name) != bitfield_value(bit_name) }
-          define_method("#{bit_name}_change") do
-            values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
-            values unless values[0] == values[1]
+
+          if Bitfields::active_record_5_1_or_above?
+            attribute bit_name, :boolean, default: false
+            define_method("#{bit_name}=") { |value| super(value); set_bitfield_value(bit_name, value) }
+          else
+            define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
+            define_method("#{bit_name}_was") { bitfield_value_was(bit_name) }
+            define_method("#{bit_name}_changed?") { bitfield_value_was(bit_name) != bitfield_value(bit_name) }
+            define_method("#{bit_name}_change") do
+              values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
+              values unless values[0] == values[1]
+            end
           end
+
           define_method("#{bit_name}_became_true?") do
             value = bitfield_value(bit_name)
-            value && bitfield_value_was(bit_name) != value
+            value && send("#{bit_name}_was") != value
           end
           define_method("#{bit_name}_became_false?") do
             value = bitfield_value(bit_name)
-            !value && bitfield_value_was(bit_name) != value
+            !value && send("#{bit_name}_was") != value
           end
         end
 
