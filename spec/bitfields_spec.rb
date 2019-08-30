@@ -80,34 +80,6 @@ class ManyBitsUser < User
   self.table_name = 'users'
 end
 
-class AvoidCallbackDeprecation < ActiveRecord::Base
-  self.table_name = 'users'
-  include Bitfields
-
-  bitfield :bits, 1 => :before_bit, 2 => :after_bit
-
-  before_save :before_save_callback, if: :before_bit_has_changed?
-  after_save :after_save_callback, if: :after_bit_has_changed?
-
-  def before_bit_has_changed?
-    before_bit_changed?
-  end
-
-  def after_bit_has_changed?
-    after_bit_changed?
-  end
-
-  def before_save_callback
-    before_bit_was
-    true
-  end
-
-  def after_save_callback
-    after_bit_was
-    true
-  end
-end
-
 describe Bitfields do
   before do
     User.delete_all
