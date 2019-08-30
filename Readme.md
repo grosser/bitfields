@@ -22,6 +22,17 @@ user.my_bits # => 3
  - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
  - gives access to bits `User.bitfields[:my_bits][:sensible] # => 4`
+ - **For ActiveRecord 5.1+:** [`ActiveRecord::AttributeMethods::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveRecord/AttributeMethods/Dirty.html) and [`ActiveModel::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveModel/Dirty.html) methods can be used on each bitfield:
+ ```ruby
+    user = User.new(seller: false)
+    user.seller = true
+    user.will_save_change_to_seller? # => true
+    user.seller_change_to_be_saved # => [false, true]
+
+    user.save
+    user.seller_before_last_save # => false
+    user.saved_change_to_seller # => [false, true]
+ ```
 
 Install
 =======
@@ -88,6 +99,38 @@ require 'bitfields/rspec'
 describe User do
   it { should have_a_bitfield :active }
 end
+````
+
+Introduced a shell script to `bundle install` and run specific versions of the spec suite for a given ActiveRecord version.
+
+````bash
+> sh specs_for_version.sh 5.1
+# Running rspec for ActiveRecord 5.1
+...
+````
+
+````bash
+> sh specs_for_version.sh 5.0 5.1 5.2
+# Running rspec for ActiveRecord 5.0
+...
+# Running rspec for ActiveRecord 5.1
+...
+# Running rspec for ActiveRecord 5.2
+...
+````
+
+Passing no arguments will result in running all ActiveRecord versions (as defined in the `/gemfiles` directory).
+
+````bash
+> sh specs_for_version.sh
+# Running rspec for ActiveRecord 4.2
+...
+# Running rspec for ActiveRecord 5.0
+...
+# Running rspec for ActiveRecord 5.1
+...
+# Running rspec for ActiveRecord 5.2
+...
 ````
 
 TODO
