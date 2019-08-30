@@ -30,6 +30,7 @@ user.my_bits # => 3
     user.seller_change_to_be_saved # => [false, true]
 
     user.save
+
     user.seller_before_last_save # => false
     user.saved_change_to_seller # => [false, true]
  ```
@@ -99,38 +100,6 @@ require 'bitfields/rspec'
 describe User do
   it { should have_a_bitfield :active }
 end
-````
-
-Introduced a shell script to `bundle install` and run specific versions of the spec suite for a given ActiveRecord version.
-
-````bash
-> sh specs_for_version.sh 5.1
-# Running rspec for ActiveRecord 5.1
-...
-````
-
-````bash
-> sh specs_for_version.sh 5.0 5.1 5.2
-# Running rspec for ActiveRecord 5.0
-...
-# Running rspec for ActiveRecord 5.1
-...
-# Running rspec for ActiveRecord 5.2
-...
-````
-
-Passing no arguments will result in running all ActiveRecord versions (as defined in the `/gemfiles` directory).
-
-````bash
-> sh specs_for_version.sh
-# Running rspec for ActiveRecord 4.2
-...
-# Running rspec for ActiveRecord 5.0
-...
-# Running rspec for ActiveRecord 5.1
-...
-# Running rspec for ActiveRecord 5.2
-...
 ````
 
 TODO
