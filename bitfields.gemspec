@@ -9,8 +9,8 @@ Gem::Specification.new name, Bitfields::VERSION do |s|
   s.files = Dir["{lib/**/*.rb,Readme.md}"]
   s.license = 'MIT'
   s.required_ruby_version = ">= 2.2.0"
+  s.add_dependency 'activerecord', ">= 5.1"
   s.add_development_dependency 'wwtd'
-  s.add_development_dependency 'activerecord', ">= 5.1"
   s.add_development_dependency 'sqlite3'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~>3'
