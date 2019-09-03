@@ -8,8 +8,6 @@ rvm:
 bundler_args: ""
 before_install: gem install bundler
 gemfile:
-- gemfiles/activerecord_4.2.gemfile
-- gemfiles/activerecord_5.0.gemfile
 - gemfiles/activerecord_5.1.gemfile
 - gemfiles/activerecord_5.2.gemfile
 script: bundle exec rake spec
