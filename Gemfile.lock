@@ -48,7 +48,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
+  activerecord (>= 5.1)
   bitfields!
   bump
   rake
