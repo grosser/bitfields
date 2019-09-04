@@ -15,6 +15,9 @@ user.my_bits # => 3
 
  - records bitfield_changes `user.bitfield_changes # => {"seller" => [false, true], "insane" => [false, true]}` (also `seller_was` / `seller_change` / `seller_changed?` / `seller_became_true?` / `seller_became_false?`)
    - Individual added methods (i.e, `seller_was`, `seller_changed?`, etc..) can be deactivated with `bitfield ..., added_instance_methods: false`
+   - **Note**: ActiveRecord 5.2 changes the behavior of `_was` and `_changed?` methods when used in the context of an `after_save` callback.
+     - ActiveRecord 5.1 will use the use the values that were _just_ changed.
+     - ActiveRecord 5.2, however, will return `nil` for `_was` and `false` for `_changed?` since the previous changes have been persisted.
  - adds scopes `User.seller.sensible.first` (deactivate with `bitfield ..., scopes: false`)
  - builds sql `User.bitfield_sql(insane: true, sensible: false) # => '(users.my_bits & 6) = 1'`
  - builds sql with OR condition `User.bitfield_sql({ insane: true, sensible: true }, query_mode: :bit_operator_or) # => '(users.my_bits & 2) = 2 OR (users.bits & 4) = 4'`
@@ -22,6 +25,18 @@ user.my_bits # => 3
  - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
  - gives access to bits `User.bitfields[:my_bits][:sensible] # => 4`
+ - [`ActiveRecord::AttributeMethods::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveRecord/AttributeMethods/Dirty.html) and [`ActiveModel::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveModel/Dirty.html) methods can be used on each bitfield:
+ ```ruby
+    user = User.new(seller: false)
+    user.seller = true
+    user.will_save_change_to_seller? # => true
+    user.seller_change_to_be_saved # => [false, true]
+
+    user.save
+
+    user.seller_before_last_save # => false
+    user.saved_change_to_seller # => [false, true]
+ ```
 
 Install
 =======
@@ -50,7 +65,7 @@ User.seller.not_sensible.update_all(User.set_bitfield_sql(seller: true, insane: 
 Delete the shop when a user is no longer a seller
 
 ```ruby
-before_save :delete_shop, if: -> { |u| u.seller_change == [true, false]}
+before_save :delete_shop, if: -> { |u| u.seller_change == [true, false] }
 ```
 
 List fields and their respective values

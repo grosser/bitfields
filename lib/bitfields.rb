@@ -82,22 +82,19 @@ module Bitfields
     def add_bitfield_methods(column, options)
       bitfields[column].keys.each do |bit_name|
         if options[:added_instance_methods] != false
+          attribute bit_name, :boolean, default: false
+
           define_method(bit_name) { bitfield_value(bit_name) }
           define_method("#{bit_name}?") { bitfield_value(bit_name) }
-          define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
-          define_method("#{bit_name}_was") { bitfield_value_was(bit_name) }
-          define_method("#{bit_name}_changed?") { bitfield_value_was(bit_name) != bitfield_value(bit_name) }
-          define_method("#{bit_name}_change") do
-            values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
-            values unless values[0] == values[1]
-          end
+          define_method("#{bit_name}=") { |value| super(value); set_bitfield_value(bit_name, value) }
+
           define_method("#{bit_name}_became_true?") do
             value = bitfield_value(bit_name)
-            value && bitfield_value_was(bit_name) != value
+            value && send("#{bit_name}_was") != value
           end
           define_method("#{bit_name}_became_false?") do
             value = bitfield_value(bit_name)
-            !value && bitfield_value_was(bit_name) != value
+            !value && send("#{bit_name}_was") != value
           end
         end
 

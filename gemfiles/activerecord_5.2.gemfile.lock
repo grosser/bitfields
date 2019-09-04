@@ -1,23 +1,23 @@
 PATH
   remote: ..
   specs:
-    bitfields (0.8.0)
+    bitfields (0.10.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (5.1.7)
-      activesupport (= 5.1.7)
-    activerecord (5.1.7)
-      activemodel (= 5.1.7)
-      activesupport (= 5.1.7)
-      arel (~> 8.0)
-    activesupport (5.1.7)
+    activemodel (5.2.3)
+      activesupport (= 5.2.3)
+    activerecord (5.2.3)
+      activemodel (= 5.2.3)
+      activesupport (= 5.2.3)
+      arel (>= 9.0)
+    activesupport (5.2.3)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    arel (8.0.0)
+    arel (9.0.0)
     bump (0.8.0)
     concurrent-ruby (1.1.5)
     diff-lcs (1.3)
@@ -48,7 +48,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (~> 5.1.0)
+  activerecord (~> 5.2.0)
   bitfields!
   bump
   rake

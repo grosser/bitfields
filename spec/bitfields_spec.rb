@@ -216,6 +216,60 @@ describe Bitfields do
       user.seller_change.should == nil
     end
 
+    it "has _before_last_save" do
+      user = User.new
+      user.seller_before_last_save.should == nil
+      user.seller = true
+      user.save!
+      user.seller_before_last_save.should == false
+    end
+
+    it "has _change_to_be_saved" do
+      user = User.new
+      user.seller_change_to_be_saved.should == nil
+      user.seller = true
+      user.seller_change_to_be_saved.should == [false, true]
+      user.save!
+      user.seller_change_to_be_saved.should == nil
+    end
+
+    it "has _in_database" do
+      user = User.new
+      user.seller_in_database.should == false
+      user.seller = true
+      user.save!
+      user.seller_in_database.should == true
+    end
+
+    it "has saved_change_to_" do
+      user = User.new
+      user.saved_change_to_seller.should == nil
+      user.seller = true
+      user.saved_change_to_seller.should == nil
+      user.save!
+      user.saved_change_to_seller.should == [false, true]
+    end
+
+    it "has saved_change_to_?" do
+      user = User.new
+      user.saved_change_to_seller?.should == false
+      user.seller = true
+      user.saved_change_to_seller?.should == false
+      user.save!
+      user.saved_change_to_seller?.should == true
+    end
+
+    it "has will_save_change_to_?" do
+      user = User.new
+      user.will_save_change_to_seller?.should == nil
+      user.seller = true
+      user.will_save_change_to_seller?.should == true
+      user.save!
+      user.will_save_change_to_seller?.should == nil
+      user.seller = false
+      user.will_save_change_to_seller?.should == true
+    end
+
     it "has _became_true?" do
       user = User.new
       user.seller_became_true?.should == false
@@ -240,7 +294,7 @@ describe Bitfields do
 
     context "when :added_instance_methods is false" do
       %i{
-        seller seller? seller= seller_was seller_changed? seller_change seller_became_true?
+        seller seller? seller= seller_was seller_changed? seller_change seller_became_true? seller_became_false?
       }.each do |meth|
         describe "method #{meth} is not generated" do
           UserWithInstanceOptions.new.respond_to?(meth).should == false
@@ -254,13 +308,13 @@ describe Bitfields do
   end
 
   describe '#bitfield_changes' do
-    it "has no changes by defaut" do
+    it "has no changes by default" do
       User.new.bitfield_changes.should == {}
     end
 
     it "records a change when setting" do
       u = User.new(:seller => true)
-      u.changes.should == {'bits' => [0,1]}
+      u.changes.should == { 'bits' => [0,1], 'seller' => [false, true] }
       u.bitfield_changes.should == {'seller' => [false, true]}
     end
   end
