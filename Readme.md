@@ -120,6 +120,9 @@ Authors
  - [szTheory](https://github.com/szTheory)
  - [Reed G. Law](https://github.com/reedlaw)
  - [Rael Gugelmin Cunha](https://github.com/reedlaw)
+ - [Alan Wong](https://github.com/naganowl)
+ - [Andrew Bates](https://github.com/a-bates)
+ - [Shirish Pampoorickal](https://github.com/shirish-pampoorickal)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
