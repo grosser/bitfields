@@ -84,6 +84,11 @@ module Bitfields
         if options[:added_instance_methods] != false
           attribute bit_name, :boolean, default: false
 
+          after_find do
+            send("#{bit_name}=", send(bit_name))
+            clear_attribute_changes([bit_name])
+          end
+
           define_method(bit_name) { bitfield_value(bit_name) }
           define_method("#{bit_name}?") { bitfield_value(bit_name) }
           define_method("#{bit_name}=") { |value| super(value); set_bitfield_value(bit_name, value) }
