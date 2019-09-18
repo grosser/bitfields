@@ -85,7 +85,7 @@ module Bitfields
           attribute bit_name, :boolean, default: false
 
           after_find do
-            send("#{bit_name}=", send(bit_name))
+            write_attribute(bit_name, send(bit_name))
             clear_attribute_changes([bit_name])
           end
 
