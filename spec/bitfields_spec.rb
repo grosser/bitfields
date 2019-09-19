@@ -455,6 +455,10 @@ describe Bitfields do
           UserWithInstanceOptions.new.respond_to?(meth).should == false
         end
       end
+
+      it "does not define an after_find method" do
+        UserWithInstanceOptions.new.respond_to?(:after_find).should == false
+      end
     end
 
     it "does still have the main bitfield method" do
