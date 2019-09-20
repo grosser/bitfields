@@ -82,9 +82,11 @@ module Bitfields
     def add_bitfield_methods(column, options)
       if options[:added_instance_methods] != false
         after_find do
-          self.class.bitfields[column].keys.each do |bit_name|
-            write_attribute(bit_name, send(bit_name))
-            clear_attribute_changes([bit_name])
+          if self.has_attribute?(column)
+            self.class.bitfields[column].keys.each do |bit_name|
+              write_attribute(bit_name, send(bit_name))
+              clear_attribute_changes([bit_name])
+            end
           end
         end
       end

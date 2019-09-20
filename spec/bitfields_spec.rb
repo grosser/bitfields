@@ -423,6 +423,16 @@ describe Bitfields do
         user.seller = true
         user.will_save_change_to_seller?.should == true
       end
+
+      context "when the model loaded from the database does not select the bitfield column" do
+        it "does not try to assign the bitfield attributes" do
+          User.create!(:seller => true)
+
+          lambda{
+            User.select(:id).last
+          }.should_not raise_error
+        end
+      end
     end
 
     it "has _became_true?" do
