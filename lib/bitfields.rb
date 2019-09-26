@@ -80,6 +80,16 @@ module Bitfields
     end
 
     def add_bitfield_methods(column, options)
+      if options[:added_instance_methods] != false
+        after_find do
+          if self.has_attribute?(column)
+            current_bitfields = bitfield_values(column)
+            current_bitfields.each(&method(:write_attribute))
+            clear_attribute_changes(current_bitfields.keys)
+          end
+        end
+      end
+
       bitfields[column].keys.each do |bit_name|
         if options[:added_instance_methods] != false
           attribute bit_name, :boolean, default: false
