@@ -253,7 +253,7 @@ describe Bitfields do
         user = User.new(:seller => true)
         user.will_save_change_to_seller?.should == true
         user.save!
-        user.will_save_change_to_seller?.should == nil
+        user.will_save_change_to_seller?.should == false
         user.seller = false
         user.will_save_change_to_seller?.should == true
       end
@@ -323,11 +323,11 @@ describe Bitfields do
 
       it "has will_save_change_to_?" do
         user = User.create!(:seller => true)
-        user.will_save_change_to_seller?.should == nil
+        user.will_save_change_to_seller?.should == false
         user.seller = false
         user.will_save_change_to_seller?.should == true
         user.save!
-        user.will_save_change_to_seller?.should == nil
+        user.will_save_change_to_seller?.should == false
         user.seller = true
         user.will_save_change_to_seller?.should == true
       end
@@ -415,11 +415,11 @@ describe Bitfields do
       it "has will_save_change_to_?" do
         User.create!(:seller => true)
         user = User.last
-        user.will_save_change_to_seller?.should == nil
+        user.will_save_change_to_seller?.should == false
         user.seller = false
         user.will_save_change_to_seller?.should == true
         user.save!
-        user.will_save_change_to_seller?.should == nil
+        user.will_save_change_to_seller?.should == false
         user.seller = true
         user.will_save_change_to_seller?.should == true
       end
@@ -483,7 +483,7 @@ describe Bitfields do
 
     it "records a change when setting" do
       u = User.new(:seller => true)
-      u.changes.should == { 'bits' => [0,1], 'seller' => [false, true] }
+      u.changes.should == { 'bits' => [0,1] }
       u.bitfield_changes.should == {'seller' => [false, true]}
     end
   end
