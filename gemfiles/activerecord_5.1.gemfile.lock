@@ -1,7 +1,8 @@
 PATH
   remote: ..
   specs:
-    bitfields (0.10.0)
+    bitfields (0.11.0)
+      activerecord (>= 5.1)
 
 GEM
   remote: https://rubygems.org/
@@ -57,4 +58,4 @@ DEPENDENCIES
   wwtd
 
 BUNDLED WITH
-   2.0.1
+   2.0.2

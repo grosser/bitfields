@@ -190,84 +190,249 @@ describe Bitfields do
       user.bits.should == 7
     end
 
-    it "has _was" do
-      user = User.new
-      user.seller_was.should == false
-      user.seller = true
-      user.save!
-      user.seller_was.should == true
+    context "when instantiating a new record" do
+      it "has _was" do
+        user = User.new(:seller => true)
+        user.seller_was.should == false
+        user.save!
+        user.seller_was.should == true
+      end
+
+      it "has _changed?" do
+        user = User.new(:seller => true)
+        user.seller_changed?.should == true
+        user.save!
+        user.seller_changed?.should == false
+      end
+
+      it "has _change" do
+        user = User.new(:seller => true)
+        user.seller_change.should == [false, true]
+        user.save!
+        user.seller_change.should == nil
+        user.seller = false
+        user.seller_change.should == [true, false]
+      end
+
+      it "has _before_last_save" do
+        user = User.new(:seller => true)
+        user.seller_before_last_save.should == nil
+        user.save!
+        user.seller_before_last_save.should == false
+      end
+
+      it "has _change_to_be_saved" do
+        user = User.new(:seller => true)
+        user.seller_change_to_be_saved.should == [false, true]
+        user.save!
+        user.seller_change_to_be_saved.should == nil
+      end
+
+      it "has _in_database" do
+        user = User.new(:seller => true)
+        user.seller_in_database.should == false
+        user.save!
+        user.seller_in_database.should == true
+      end
+
+      it "has saved_change_to_" do
+        user = User.new(:seller => true)
+        user.saved_change_to_seller.should == nil
+        user.save!
+        user.saved_change_to_seller.should == [false, true]
+      end
+
+      it "has saved_change_to_?" do
+        user = User.new(:seller => true)
+        user.saved_change_to_seller?.should == false
+        user.save!
+        user.saved_change_to_seller?.should == true
+      end
+
+      it "has will_save_change_to_?" do
+        user = User.new(:seller => true)
+        user.will_save_change_to_seller?.should == true
+        user.save!
+        user.will_save_change_to_seller?.should == false
+        user.seller = false
+        user.will_save_change_to_seller?.should == true
+      end
     end
 
-    it "has _changed?" do
-      user = User.new
-      user.seller_changed?.should == false
-      user.seller = true
-      user.seller_changed?.should == true
-      user.save!
-      user.seller_changed?.should == false
+    context "when creating a new model" do
+      it "has _was" do
+        user = User.create!(:seller => true)
+        user.seller = false
+        user.seller_was.should == true
+        user.save!
+        user.seller_was.should == false
+      end
+
+      it "has _changed?" do
+        user = User.create!(:seller => true)
+        user.seller_changed?.should == false
+        user.seller = false
+        user.seller_changed?.should == true
+        user.save!
+        user.seller_changed?.should == false
+      end
+
+      it "has _change" do
+        user = User.create!(:seller => true)
+        user.seller_change.should == nil
+        user.seller = false
+        user.seller_change.should == [true, false]
+        user.save!
+        user.seller_change.should == nil
+      end
+
+      it "has _before_last_save" do
+        user = User.create!(:seller => true)
+        user.seller_before_last_save.should == false
+        user.seller = false
+        user.save!
+        user.seller_before_last_save.should == true
+      end
+
+      it "has _change_to_be_saved" do
+        user = User.create!(:seller => true)
+        user.seller_change_to_be_saved.should == nil
+        user.seller = false
+        user.seller_change_to_be_saved.should == [true, false]
+        user.save!
+        user.seller_change_to_be_saved.should == nil
+      end
+
+      it "has _in_database" do
+        user = User.create!(:seller => true)
+        user.seller_in_database.should == true
+        user.seller = false
+        user.save!
+        user.seller_in_database.should == false
+      end
+
+      it "has saved_change_to_" do
+        user = User.create!(:seller => true)
+        user.saved_change_to_seller.should == [false, true]
+      end
+
+      it "has saved_change_to_?" do
+        user = User.create!(:seller => true)
+        user.saved_change_to_seller?.should == true
+      end
+
+      it "has will_save_change_to_?" do
+        user = User.create!(:seller => true)
+        user.will_save_change_to_seller?.should == false
+        user.seller = false
+        user.will_save_change_to_seller?.should == true
+        user.save!
+        user.will_save_change_to_seller?.should == false
+        user.seller = true
+        user.will_save_change_to_seller?.should == true
+      end
     end
 
-    it "has _change" do
-      user = User.new
-      user.seller_change.should == nil
-      user.seller = true
-      user.seller_change.should == [false, true]
-      user.save!
-      user.seller_change.should == nil
-    end
+    context "when loading a model from the database" do
+      it "has _was" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller
+        user.seller = false
+        user.seller_was.should == true
+        user.save!
+        user.seller_was.should == false
+      end
 
-    it "has _before_last_save" do
-      user = User.new
-      user.seller_before_last_save.should == nil
-      user.seller = true
-      user.save!
-      user.seller_before_last_save.should == false
-    end
+      it "has _changed?" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller_changed?.should == false
+        user.seller = false
+        user.seller_changed?.should == true
+        user.save!
+        user.seller_changed?.should == false
+      end
 
-    it "has _change_to_be_saved" do
-      user = User.new
-      user.seller_change_to_be_saved.should == nil
-      user.seller = true
-      user.seller_change_to_be_saved.should == [false, true]
-      user.save!
-      user.seller_change_to_be_saved.should == nil
-    end
+      it "has _change" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller_change.should == nil
+        user.seller = false
+        user.seller_change.should == [true, false]
+        user.save!
+        user.seller_change.should == nil
+      end
 
-    it "has _in_database" do
-      user = User.new
-      user.seller_in_database.should == false
-      user.seller = true
-      user.save!
-      user.seller_in_database.should == true
-    end
+      it "has _before_last_save" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller_before_last_save.should == nil
+        user.seller = false
+        user.save!
+        user.seller_before_last_save.should == true
+      end
 
-    it "has saved_change_to_" do
-      user = User.new
-      user.saved_change_to_seller.should == nil
-      user.seller = true
-      user.saved_change_to_seller.should == nil
-      user.save!
-      user.saved_change_to_seller.should == [false, true]
-    end
+      it "has _change_to_be_saved" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller_change_to_be_saved.should == nil
+        user.seller = false
+        user.seller_change_to_be_saved.should == [true, false]
+        user.save!
+        user.seller_change_to_be_saved.should == nil
+      end
 
-    it "has saved_change_to_?" do
-      user = User.new
-      user.saved_change_to_seller?.should == false
-      user.seller = true
-      user.saved_change_to_seller?.should == false
-      user.save!
-      user.saved_change_to_seller?.should == true
-    end
+      it "has _in_database" do
+        User.create!(:seller => true)
+        user = User.last
+        user.seller_in_database.should == true
+        user.seller = false
+        user.save!
+        user.seller_in_database.should == false
+      end
 
-    it "has will_save_change_to_?" do
-      user = User.new
-      user.will_save_change_to_seller?.should == nil
-      user.seller = true
-      user.will_save_change_to_seller?.should == true
-      user.save!
-      user.will_save_change_to_seller?.should == nil
-      user.seller = false
-      user.will_save_change_to_seller?.should == true
+      it "has saved_change_to_" do
+        User.create!(:seller => true)
+        user = User.last
+        user.saved_change_to_seller.should == nil
+        user.seller = false
+        user.saved_change_to_seller.should == nil
+        user.save!
+        user.saved_change_to_seller.should == [true, false]
+      end
+
+      it "has saved_change_to_?" do
+        User.create!(:seller => true)
+        user = User.last
+        user.saved_change_to_seller?.should == false
+        user.seller = false
+        user.saved_change_to_seller?.should == false
+        user.save!
+        user.saved_change_to_seller?.should == true
+      end
+
+      it "has will_save_change_to_?" do
+        User.create!(:seller => true)
+        user = User.last
+        user.will_save_change_to_seller?.should == false
+        user.seller = false
+        user.will_save_change_to_seller?.should == true
+        user.save!
+        user.will_save_change_to_seller?.should == false
+        user.seller = true
+        user.will_save_change_to_seller?.should == true
+      end
+
+      context "when the model loaded from the database does not select the bitfield column" do
+        it "does not try to assign the bitfield attributes" do
+          User.create!(:seller => true)
+
+          lambda{
+            User.select(:id).last
+          }.should_not raise_error
+        end
+      end
     end
 
     it "has _became_true?" do
@@ -300,6 +465,10 @@ describe Bitfields do
           UserWithInstanceOptions.new.respond_to?(meth).should == false
         end
       end
+
+      it "does not define an after_find method" do
+        UserWithInstanceOptions.new.respond_to?(:after_find).should == false
+      end
     end
 
     it "does still have the main bitfield method" do
@@ -314,7 +483,7 @@ describe Bitfields do
 
     it "records a change when setting" do
       u = User.new(:seller => true)
-      u.changes.should == { 'bits' => [0,1], 'seller' => [false, true] }
+      u.changes.should == { 'bits' => [0,1] }
       u.bitfield_changes.should == {'seller' => [false, true]}
     end
   end

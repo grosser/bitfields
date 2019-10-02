@@ -17,7 +17,7 @@ user.my_bits # => 3
    - Individual added methods (i.e, `seller_was`, `seller_changed?`, etc..) can be deactivated with `bitfield ..., added_instance_methods: false`
    - **Note**: ActiveRecord 5.2 changes the behavior of `_was` and `_changed?` methods when used in the context of an `after_save` callback.
      - ActiveRecord 5.1 will use the use the values that were _just_ changed.
-     - ActiveRecord 5.2, however, will return `nil` for `_was` and `false` for `_changed?` since the previous changes have been persisted.
+     - ActiveRecord 5.2, however, will return the current value for `_was` and `false` for `_changed?` since the previous changes have been persisted.
  - adds scopes `User.seller.sensible.first` (deactivate with `bitfield ..., scopes: false`)
  - builds sql `User.bitfield_sql(insane: true, sensible: false) # => '(users.my_bits & 6) = 1'`
  - builds sql with OR condition `User.bitfield_sql({ insane: true, sensible: true }, query_mode: :bit_operator_or) # => '(users.my_bits & 2) = 2 OR (users.bits & 4) = 4'`
@@ -25,18 +25,6 @@ user.my_bits # => 3
  - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
  - gives access to bits `User.bitfields[:my_bits][:sensible] # => 4`
- - [`ActiveRecord::AttributeMethods::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveRecord/AttributeMethods/Dirty.html) and [`ActiveModel::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveModel/Dirty.html) methods can be used on each bitfield:
- ```ruby
-    user = User.new(seller: false)
-    user.seller = true
-    user.will_save_change_to_seller? # => true
-    user.seller_change_to_be_saved # => [false, true]
-
-    user.save
-
-    user.seller_before_last_save # => false
-    user.saved_change_to_seller # => [false, true]
- ```
 
 Install
 =======
@@ -53,6 +41,49 @@ t.integer :my_bits, default: 0, null: false
 # OR
 add_column :users, :my_bits, :integer, default: 0, null: false
 ```
+
+Instance Methods
+================
+
+### Global Bitfield Methods
+| Method Name        | Example (`user = User.new(seller: true, insane: true`)  | Result                                                      |
+|--------------------|---------------------------------------------------------|-------------------------------------------------------------|
+| `bitfield_values`  | `user.bitfield_values`                                  | `{"seller" => true, "insane" => true, "sensible" => false}` |
+| `bitfield_changes` | `user.bitfield_changes`                                 | `{"seller" => [false, true], "insane" => [false, true]}`    |
+
+### Individual Bit Methods
+#### Model Getters / Setters
+| Method Name    | Example (`user = User.new`) | Result  |
+|----------------|-----------------------------|---------|
+| `#{bit_name}`  | `user.seller`               | `false` |
+| `#{bit_name}=` | `user.seller = true`        | `true`  |
+| `#{bit_name}?` | `user.seller?`              | `true`  |
+
+#### Dirty Methods:
+
+Some, not all, [`ActiveRecord::AttributeMethods::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveRecord/AttributeMethods/Dirty.html) and [`ActiveModel::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveModel/Dirty.html) methods can be used on each bitfield:
+
+##### Before Model Persistence
+| Method Name                        | Example (`user = User.new`)        | Result          |
+|------------------------------------|------------------------------------|-----------------|
+| `#{bit_name}_was`                  | `user.seller_was`                  | `false`         |
+| `#{bit_name}_in_database`          | `user.seller_in_database`          | `false`         |
+| `#{bit_name}_change`               | `user.seller_change`               | `[false, true]` |
+| `#{bit_name}_change_to_be_saved`   | `user.seller_change_to_be_saved`   | `[false, true]` |
+| `#{bit_name}_changed?`             | `user.seller_changed?`             | `true`          |
+| `will_save_change_to_#{bit_name}?` | `user.will_save_change_to_seller?` | `true`          |
+| `#{bit_name}_became_true?`         | `user.seller_became_true?`         | `true`          |
+| `#{bit_name}_became_false?`        | `user.seller_became_false?`        | `false`         |
+
+
+##### After Model Persistence
+| Method Name                    | Example (`user = User.create(seller: true)`)      | Result          |
+|--------------------------------|---------------------------------------------------|-----------------|
+| `#{bit_name}_before_last_save` | `user.seller_before_last_save`                    | `false`         |
+| `saved_change_to_#{bit_name}`  | `user.saved_change_to_seller`                     | `[false, true]` |
+| `saved_change_to_#{bit_name}?` | `user.saved_change_to_seller?`                    | `true`          |
+
+  - **Note**: These methods are dynamically defined for each bitfield, and function separately from the real `ActiveRecord::AttributeMethods::Dirty`/`ActiveModel::Dirty` methods. As such, generic methods (e.g. `attribute_before_last_save(:attribute)`) will not work.
 
 Examples
 ========
