@@ -547,8 +547,14 @@ describe Bitfields do
         u2 = User.create!(:seller => true, :insane => false)
         u3 = User.create!(:seller => false, :insane => false)
 
-        conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
+        conditions = User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or)
         User.where(conditions).should == [u1, u2]
+
+        conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u3]
+
+        conditions = User.bitfield_sql({:seller => false, :insane => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u2, u3]
       end
     end
 
