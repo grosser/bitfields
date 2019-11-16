@@ -143,7 +143,8 @@ module Bitfields
         result = []
         bit_values.each do |bit_name, value|
           bit = bitfields[column][bit_name]
-          result << "(#{table_name}.#{column} & #{bit}) = #{bit}" if value
+          eql = value ? bit : 0
+          result << "(#{table_name}.#{column} & #{bit}) = #{eql}"
         end
         result.join(' OR ')
       else raise("bitfields: unknown query mode #{mode.inspect}")
