@@ -154,6 +154,7 @@ Authors
  - [Alan Wong](https://github.com/naganowl)
  - [Andrew Bates](https://github.com/a-bates)
  - [Shirish Pampoorickal](https://github.com/shirish-pampoorickal)
+ - [Sergey Kojin](https://github.com/skojin)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
