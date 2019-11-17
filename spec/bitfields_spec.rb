@@ -539,7 +539,7 @@ describe Bitfields do
 
     describe 'with OR' do
       it "generates sql for each bit" do
-        User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or).should == '(users.bits & 1) = 1 OR (users.bits & 2) = 2'
+        User.bitfield_sql({:seller => true, :insane => true, :stupid => false}, :query_mode => :bit_operator_or).should == '(users.bits & 1) = 1 OR (users.bits & 2) = 2 OR (users.bits & 4) = 0'
       end
 
       it "generates working sql" do
@@ -547,8 +547,14 @@ describe Bitfields do
         u2 = User.create!(:seller => true, :insane => false)
         u3 = User.create!(:seller => false, :insane => false)
 
-        conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
+        conditions = User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or)
         User.where(conditions).should == [u1, u2]
+
+        conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u3]
+
+        conditions = User.bitfield_sql({:seller => false, :insane => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u2, u3]
       end
     end
 
