@@ -539,22 +539,69 @@ describe Bitfields do
 
     describe 'with OR' do
       it "generates sql for each bit" do
-        User.bitfield_sql({:seller => true, :insane => true, :stupid => false}, :query_mode => :bit_operator_or).should == '(users.bits & 1) = 1 OR (users.bits & 2) = 2 OR (users.bits & 4) = 0'
+        User.bitfield_sql({:seller => true, :insane => true, :stupid => false}, :query_mode => :bit_operator_or).should == '(users.bits & 3) <> 0 OR (users.bits & 4) <> 4'
+      end
+
+      it "generates sql for only ON" do
+        User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or).should == '(users.bits & 3) <> 0'
+      end
+
+      it "generates sql for only OFF" do
+        User.bitfield_sql({:seller => false, :stupid => false}, :query_mode => :bit_operator_or).should == '(users.bits & 5) <> 5'
       end
 
       it "generates working sql" do
         u1 = User.create!(:seller => true, :insane => true)
         u2 = User.create!(:seller => true, :insane => false)
         u3 = User.create!(:seller => false, :insane => false)
+        u4 = User.create!(:stupid => true, :insane => false)
 
         conditions = User.bitfield_sql({:seller => true, :insane => true}, :query_mode => :bit_operator_or)
         User.where(conditions).should == [u1, u2]
 
         conditions = User.bitfield_sql({:seller => true, :insane => false}, :query_mode => :bit_operator_or)
-        User.where(conditions).should == [u1, u2, u3]
+        User.where(conditions).should == [u1, u2, u3, u4]
 
         conditions = User.bitfield_sql({:seller => false, :insane => false}, :query_mode => :bit_operator_or)
-        User.where(conditions).should == [u2, u3]
+        User.where(conditions).should == [u2, u3, u4]
+      end
+
+      it "generates working sql for multiple ON bits" do
+        u1 = User.create!(:seller => true)
+        u2 = User.create!(:insane => true)
+        u3 = User.create!(:stupid => true)
+        u4 = User.create! # all off
+
+        conditions = User.bitfield_sql({:seller => true, :insane => true,  :stupid => true}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u3]
+
+        conditions = User.bitfield_sql({:seller => true, :stupid => true}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u3]
+
+        conditions = User.bitfield_sql({:seller => true}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1]
+
+        conditions = User.bitfield_sql({:seller => true, :insane => true,  :stupid => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u4]
+      end
+
+      it "generates working sql for multiple OFF bits" do
+        u1 = User.create!(:seller => false, :insane => true,  :stupid => true)
+        u2 = User.create!(:seller => true, :insane => false,  :stupid => true)
+        u3 = User.create!(:seller => true, :insane => true,  :stupid => false)
+        u4 = User.create!(:seller => true, :insane => true,  :stupid => true) # all ON
+
+        conditions = User.bitfield_sql({:seller => false, :insane => false,  :stupid => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u3]
+
+        conditions = User.bitfield_sql({:seller => false, :stupid => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u3]
+
+        conditions = User.bitfield_sql({:seller => false}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1]
+
+        conditions = User.bitfield_sql({:seller => false, :insane => false,  :stupid => true}, :query_mode => :bit_operator_or)
+        User.where(conditions).should == [u1, u2, u4]
       end
     end
 
