@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bitfields (0.12.1)
+    bitfields (0.13.0)
       activerecord (>= 5.1)
 
 GEM
