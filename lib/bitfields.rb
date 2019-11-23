@@ -140,12 +140,10 @@ module Bitfields
         on, off = bit_values_to_on_off(column, bit_values)
         "(#{table_name}.#{column} & #{on+off}) = #{on}"
       when :bit_operator_or
+        on, off = bit_values_to_on_off(column, bit_values)
         result = []
-        bit_values.each do |bit_name, value|
-          bit = bitfields[column][bit_name]
-          eql = value ? bit : 0
-          result << "(#{table_name}.#{column} & #{bit}) = #{eql}"
-        end
+        result << "(#{table_name}.#{column} & #{on}) <> 0" if on != 0
+        result << "(#{table_name}.#{column} & #{off}) <> #{off}" if off != 0
         result.join(' OR ')
       else raise("bitfields: unknown query mode #{mode.inspect}")
       end
