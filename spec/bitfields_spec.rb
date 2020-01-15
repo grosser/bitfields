@@ -129,9 +129,20 @@ describe Bitfields do
   end
 
   describe :bitfield_bits do
-    it "converts bitfield values to bits" do
-      User.bitfield_bits({ insane: true, stupid: true, seller: true }).should == 7
-      User.bitfield_bits({ seller: true }).should == 1
+    it "works on empty" do
+      User.bitfield_bits({}).should == 0
+    end
+
+    it "adds multiple values" do
+      User.bitfield_bits(insane: true, stupid: true, seller: true).should == 7
+    end
+
+    it "ignores false" do
+      User.bitfield_bits(insane: false, stupid: true, seller: true).should == 5
+    end
+
+    it "fails on unknown bits" do
+      -> { User.bitfield_bits(foo: true) }.should raise_error(KeyError)
     end
   end
 
