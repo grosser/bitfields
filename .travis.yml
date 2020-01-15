@@ -5,9 +5,15 @@ rvm:
 - 2.4
 - 2.5
 - 2.6
+- 2.7
 bundler_args: ""
 before_install: gem install bundler
 gemfile:
 - gemfiles/activerecord_5.1.gemfile
 - gemfiles/activerecord_5.2.gemfile
+- gemfiles/activerecord_6.0.gemfile
 script: bundle exec rake spec
+matrix:
+  exclude:
+  - rvm: 2.4
+    gemfile: gemfiles/activerecord_6.0.gemfile
