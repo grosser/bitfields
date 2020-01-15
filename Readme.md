@@ -25,6 +25,7 @@ user.my_bits # => 3
  - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
  - gives access to bits `User.bitfields[:my_bits][:sensible] # => 4`
+ - converts hash to bits `User.bitfield_bits(seller: true) # => 1`
 
 Install
 =======

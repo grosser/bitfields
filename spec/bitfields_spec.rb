@@ -128,6 +128,13 @@ describe Bitfields do
     end
   end
 
+  describe :bitfield_bits do
+    it "converts bitfield values to bits" do
+      User.bitfield_bits({ insane: true, stupid: true, seller: true }).should == 7
+      User.bitfield_bits({ seller: true }).should == 1
+    end
+  end
+
   describe 'attribute accessors' do
     it "has everything on false by default" do
       User.new.seller.should == false
