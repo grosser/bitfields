@@ -1,3 +1,3 @@
 module Bitfields
-  Version = VERSION = "0.13.0"
+  Version = VERSION = "0.14.0"
 end
