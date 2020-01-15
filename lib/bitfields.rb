@@ -48,6 +48,13 @@ module Bitfields
       add_bitfield_methods column, options
     end
 
+    def bitfield_bits(values)
+      on_keys = values.select { |_, v| v }.keys
+      bitfields.values.reduce({}, :merge).each_with_object([]) do |(bit_name, value), array|
+        array << value if on_keys.include?(bit_name)
+      end.sum
+    end
+
     def bitfield_column(bit_name)
       found = bitfields.detect{|_, bits| bits.keys.include?(bit_name.to_sym) }
       raise "Unknown bitfield #{bit_name}" unless found
