@@ -13,10 +13,14 @@ user.sensible? # => false
 user.my_bits # => 3
 ```
 
- - records bitfield_changes `user.bitfield_changes # => {"seller" => [false, true], "insane" => [false, true]}` (also `seller_was` / `seller_change` / `seller_changed?` / `seller_became_true?`)
+ - records bitfield_changes `user.bitfield_changes # => {"seller" => [false, true], "insane" => [false, true]}` (also `seller_was` / `seller_change` / `seller_changed?` / `seller_became_true?` / `seller_became_false?`)
    - Individual added methods (i.e, `seller_was`, `seller_changed?`, etc..) can be deactivated with `bitfield ..., added_instance_methods: false`
+   - **Note**: ActiveRecord 5.2 changes the behavior of `_was` and `_changed?` methods when used in the context of an `after_save` callback.
+     - ActiveRecord 5.1 will use the use the values that were _just_ changed.
+     - ActiveRecord 5.2, however, will return the current value for `_was` and `false` for `_changed?` since the previous changes have been persisted.
  - adds scopes `User.seller.sensible.first` (deactivate with `bitfield ..., scopes: false`)
  - builds sql `User.bitfield_sql(insane: true, sensible: false) # => '(users.my_bits & 6) = 1'`
+ - builds sql with OR condition `User.bitfield_sql({ insane: true, sensible: true }, query_mode: :bit_operator_or) # => '(users.my_bits & 2) = 2 OR (users.bits & 4) = 4'`
  - builds index-using sql with `bitfield ... , query_mode: :in_list` and `User.bitfield_sql(insane: true, sensible: false) # => 'users.my_bits IN (2, 3)'` (2 and 1+2) often slower than :bit_operator sql especially for high number of bits
  - builds update sql `User.set_bitfield_sql(insane: true, sensible: false) == 'my_bits = (my_bits | 6) - 4'`
  - **faster sql than any other bitfield lib** through combination of multiple bits into a single sql statement
@@ -38,6 +42,49 @@ t.integer :my_bits, default: 0, null: false
 add_column :users, :my_bits, :integer, default: 0, null: false
 ```
 
+Instance Methods
+================
+
+### Global Bitfield Methods
+| Method Name        | Example (`user = User.new(seller: true, insane: true`)  | Result                                                      |
+|--------------------|---------------------------------------------------------|-------------------------------------------------------------|
+| `bitfield_values`  | `user.bitfield_values`                                  | `{"seller" => true, "insane" => true, "sensible" => false}` |
+| `bitfield_changes` | `user.bitfield_changes`                                 | `{"seller" => [false, true], "insane" => [false, true]}`    |
+
+### Individual Bit Methods
+#### Model Getters / Setters
+| Method Name    | Example (`user = User.new`) | Result  |
+|----------------|-----------------------------|---------|
+| `#{bit_name}`  | `user.seller`               | `false` |
+| `#{bit_name}=` | `user.seller = true`        | `true`  |
+| `#{bit_name}?` | `user.seller?`              | `true`  |
+
+#### Dirty Methods:
+
+Some, not all, [`ActiveRecord::AttributeMethods::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveRecord/AttributeMethods/Dirty.html) and [`ActiveModel::Dirty`](https://api.rubyonrails.org/v5.1.7/classes/ActiveModel/Dirty.html) methods can be used on each bitfield:
+
+##### Before Model Persistence
+| Method Name                        | Example (`user = User.new`)        | Result          |
+|------------------------------------|------------------------------------|-----------------|
+| `#{bit_name}_was`                  | `user.seller_was`                  | `false`         |
+| `#{bit_name}_in_database`          | `user.seller_in_database`          | `false`         |
+| `#{bit_name}_change`               | `user.seller_change`               | `[false, true]` |
+| `#{bit_name}_change_to_be_saved`   | `user.seller_change_to_be_saved`   | `[false, true]` |
+| `#{bit_name}_changed?`             | `user.seller_changed?`             | `true`          |
+| `will_save_change_to_#{bit_name}?` | `user.will_save_change_to_seller?` | `true`          |
+| `#{bit_name}_became_true?`         | `user.seller_became_true?`         | `true`          |
+| `#{bit_name}_became_false?`        | `user.seller_became_false?`        | `false`         |
+
+
+##### After Model Persistence
+| Method Name                    | Example (`user = User.create(seller: true)`)      | Result          |
+|--------------------------------|---------------------------------------------------|-----------------|
+| `#{bit_name}_before_last_save` | `user.seller_before_last_save`                    | `false`         |
+| `saved_change_to_#{bit_name}`  | `user.saved_change_to_seller`                     | `[false, true]` |
+| `saved_change_to_#{bit_name}?` | `user.saved_change_to_seller?`                    | `true`          |
+
+  - **Note**: These methods are dynamically defined for each bitfield, and function separately from the real `ActiveRecord::AttributeMethods::Dirty`/`ActiveModel::Dirty` methods. As such, generic methods (e.g. `attribute_before_last_save(:attribute)`) will not work.
+
 Examples
 ========
 Update all users
@@ -49,7 +96,7 @@ User.seller.not_sensible.update_all(User.set_bitfield_sql(seller: true, insane: 
 Delete the shop when a user is no longer a seller
 
 ```ruby
-before_save :delete_shop, if: -> { |u| u.seller_change == [true, false]}
+before_save :delete_shop, if: -> { |u| u.seller_change == [true, false] }
 ```
 
 List fields and their respective values
@@ -102,9 +149,14 @@ Authors
  - [kmcbride](https://github.com/kmcbride)
  - [Justin Aiken](https://github.com/JustinAiken)
  - [szTheory](https://github.com/szTheory)
+ - [Reed G. Law](https://github.com/reedlaw)
+ - [Rael Gugelmin Cunha](https://github.com/reedlaw)
+ - [Alan Wong](https://github.com/naganowl)
+ - [Andrew Bates](https://github.com/a-bates)
+ - [Shirish Pampoorickal](https://github.com/shirish-pampoorickal)
+ - [Sergey Kojin](https://github.com/skojin)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
 License: MIT<br/>
 [![Build Status](https://travis-ci.org/grosser/bitfields.png)](https://travis-ci.org/grosser/bitfields)
-

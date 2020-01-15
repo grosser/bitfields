@@ -1,21 +1,13 @@
 cache: bundler
-sudo: false
-matrix:
-  fast_finish: true
-  exclude:
-  - rvm: 2.4
-    gemfile: gemfiles/activerecord_3.2.gemfile
-  - rvm: 2.5
-    gemfile: gemfiles/activerecord_3.2.gemfile
 branches:
   only: master
 rvm:
-  - 2.2
-  - 2.3
-  - 2.4
-  - 2.5
-before_install: gem install bundler --no-ri --no-rdoc
+- 2.4
+- 2.5
+- 2.6
+bundler_args: ""
+before_install: gem install bundler
 gemfile:
-  - gemfiles/activerecord_3.2.gemfile
-  - gemfiles/activerecord_4.2.gemfile
+- gemfiles/activerecord_5.1.gemfile
+- gemfiles/activerecord_5.2.gemfile
 script: bundle exec rake spec

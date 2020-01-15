@@ -85,16 +85,30 @@ module Bitfields
           define_method(bit_name) { bitfield_value(bit_name) }
           define_method("#{bit_name}?") { bitfield_value(bit_name) }
           define_method("#{bit_name}=") { |value| set_bitfield_value(bit_name, value) }
+
+          # Dirty methods usable in before_save contexts
           define_method("#{bit_name}_was") { bitfield_value_was(bit_name) }
-          define_method("#{bit_name}_changed?") { bitfield_value_was(bit_name) != bitfield_value(bit_name) }
-          define_method("#{bit_name}_change") do
-            values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
-            values unless values[0] == values[1]
-          end
+          alias_method "#{bit_name}_in_database", "#{bit_name}_was"
+
+          define_method("#{bit_name}_change") { bitfield_value_change(bit_name) }
+          alias_method "#{bit_name}_change_to_be_saved", "#{bit_name}_change"
+
+          define_method("#{bit_name}_changed?") { bitfield_value_change(bit_name).present? }
+          alias_method "will_save_change_to_#{bit_name}?", "#{bit_name}_changed?"
+
           define_method("#{bit_name}_became_true?") do
             value = bitfield_value(bit_name)
-            value && bitfield_value_was(bit_name) != value
+            value && send("#{bit_name}_was") != value
           end
+          define_method("#{bit_name}_became_false?") do
+            value = bitfield_value(bit_name)
+            !value && send("#{bit_name}_was") != value
+          end
+
+          # Dirty methods usable in after_save contexts
+          define_method("#{bit_name}_before_last_save") { bitfield_value_before_last_save(bit_name) }
+          define_method("saved_change_to_#{bit_name}") { saved_change_to_bitfield_value(bit_name) }
+          define_method("saved_change_to_#{bit_name}?") { saved_change_to_bitfield_value(bit_name).present? }
         end
 
         if options[:scopes] != false
@@ -125,6 +139,12 @@ module Bitfields
       when :bit_operator
         on, off = bit_values_to_on_off(column, bit_values)
         "(#{table_name}.#{column} & #{on+off}) = #{on}"
+      when :bit_operator_or
+        on, off = bit_values_to_on_off(column, bit_values)
+        result = []
+        result << "(#{table_name}.#{column} & #{on}) <> 0" if on != 0
+        result << "(#{table_name}.#{column} & #{off}) <> #{off}" if off != 0
+        result.join(' OR ')
       else raise("bitfields: unknown query mode #{mode.inspect}")
       end
     end
@@ -176,6 +196,25 @@ module Bitfields
     def bitfield_value_was(bit_name)
       column, bit, _ = bitfield_info(bit_name)
       send("#{column}_was") & bit != 0
+    end
+
+    def bitfield_value_before_last_save(bit_name)
+      column, bit, _ = bitfield_info(bit_name)
+      column_before_last_save = send("#{column}_before_last_save")
+      column_before_last_save.nil? ? nil : column_before_last_save & bit != 0
+    end
+
+    def bitfield_value_change(bit_name)
+      values = [bitfield_value_was(bit_name), bitfield_value(bit_name)]
+      values unless values[0] == values[1]
+    end
+
+    def saved_change_to_bitfield_value(bit_name)
+      value_before_last_save = bitfield_value_before_last_save(bit_name)
+      current_value = bitfield_value(bit_name)
+      unless value_before_last_save.nil? || (value_before_last_save == current_value)
+        [value_before_last_save, current_value]
+      end
     end
 
     def set_bitfield_value(bit_name, value)
