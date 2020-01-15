@@ -49,10 +49,8 @@ module Bitfields
     end
 
     def bitfield_bits(values)
-      on_keys = values.select { |_, v| v }.keys
-      bitfields.values.reduce({}, :merge).each_with_object([]) do |(bit_name, value), array|
-        array << value if on_keys.include?(bit_name)
-      end.sum
+      bits = bitfields.values.reduce({}, :merge)
+      values.sum { |bit, on| on ? bits.fetch(bit) : 0 }
     end
 
     def bitfield_column(bit_name)
