@@ -110,9 +110,9 @@ user.bitfield_values(:my_bits) # => { seller: false, insane: true, sensible: fal
 TIPS
 ====
  - [Upgrading] in version 0.2.2 the first field(when not given as hash) used bit 2 -> add a bogus field in first position
- - [Defaults] afaik it is not possible to have some bits true by default (without monkeypatching AR/see [tests](https://github.com/grosser/bitfields/commit/2170dc546e2c4f1187089909a80e8602631d0796)) -> choose a good naming like `xxx_on` / `xxx_off` to use the default 'false'
- - Never do: "#{bitfield_sql(...)} AND #{bitfield_sql(...)}", merge both into one hash
- - bit_operator is faster in most cases, use query_mode: :in_list sparingly
+ - [Defaults for new records] set via db migration or name the bit foo_off to avoid confusion, setting via after_initialize [does not work](https://github.com/grosser/bitfields/commit/2170dc546e2c4f1187089909a80e8602631d0796) 
+ - It is slow to do: `#{bitfield_sql(...)} AND #{bitfield_sql(...)}`, merge both into one hash
+ - bit_operator is faster in most cases, use `query_mode: :in_list` sparingly
  - Standard mysql integer is 4 byte -> 32 bitfields
  - If you are lazy or bad at math you can also do `bitfields :bits, :foo, :bar, :baz`
  - If you are want more readability and reduce clutter you can do `bitfields 2**0 => :foo, 2**1 => :bar, 2**32 => :baz`
